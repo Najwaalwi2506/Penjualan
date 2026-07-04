@@ -19,6 +19,10 @@ if (mysqli_query($koneksi, $query)) {
         $jumlah = $row['jumlah'];
         mysqli_query($koneksi, "UPDATE produk SET jumlah_stok = jumlah_stok + $jumlah WHERE id = $produk_id");
     }
+
+    $subject = 'Pesanan Ditolak oleh Penjual';
+    $message = '<p>Pesanan dengan ID ' . $pesanan_id . ' telah ditolak oleh penjual.</p>';
+    send_notification_email($koneksi, $subject, $message);
     
     header('Location: ../pesanan.php?success=Pesanan berhasil ditolak');
 } else {

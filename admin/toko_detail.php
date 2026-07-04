@@ -74,7 +74,7 @@ $pesanan = mysqli_query($koneksi, "
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Toko - Admin</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../admin/Style.css">
 </head>
 <body>
 <div class="wrapper">

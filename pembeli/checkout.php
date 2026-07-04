@@ -7,6 +7,16 @@ ensure_toko_rekening_columns($koneksi);
 $user_id = $_SESSION['user_id'];
 
 // Ambil data keranjang
+$selected_ids = array();
+if (!empty($_GET['selected_ids']) && is_array($_GET['selected_ids'])) {
+    $selected_ids = array_map('intval', $_GET['selected_ids']);
+    $selected_ids = array_filter($selected_ids);
+}
+$selected_filter = '';
+if (!empty($selected_ids)) {
+    $selected_filter = ' AND k.id IN (' . implode(',', $selected_ids) . ')';
+}
+
 $keranjang = mysqli_query($koneksi, "
     SELECT k.*, p.harga_jual, j.nama_jenis, t.id as toko_id, t.nama_toko,
            t.bank_nama, t.no_rekening, t.nama_rekening
@@ -14,7 +24,7 @@ $keranjang = mysqli_query($koneksi, "
     JOIN produk p ON k.produk_id = p.id
     JOIN jenis_produk j ON p.jenis_produk_id = j.id
     JOIN toko t ON p.toko_id = t.id
-    WHERE k.user_id = $user_id
+    WHERE k.user_id = $user_id $selected_filter
     ORDER BY t.id
 ");
 
@@ -51,7 +61,7 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../pembeli/Style.css">
 </head>
 <body>
 <!-- NAVBAR -->
@@ -59,9 +69,17 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id 
     <div class="navbar-brand">🛒 Checkout</div>
     <div class="navbar-right">
         <div class="navbar-links">
+            <a href="dashboard.php"><span class="material-symbols-outlined">home</span> Beranda</a>
             <a href="keranjang.php">← Kembali</a>
         </div>
     </div>
+    <details class="navbar-mobile">
+        <summary><span>Menu</span><span class="material-symbols-outlined">menu</span></summary>
+        <div class="mobile-actions">
+            <a href="dashboard.php"><span class="material-symbols-outlined">home</span> Beranda</a>
+            <a href="keranjang.php">← Kembali</a>
+        </div>
+    </details>
 </div>
 
 <div class="main-content" style="max-width: 900px; margin: 0 auto;">
@@ -163,6 +181,9 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id 
                         
                         <small style="color: #999; display: block; margin-bottom: 15px;">Upload bukti pembayaran dilakukan per toko pada bagian informasi pembayaran di atas.</small>
                         
+                        <?php foreach ($selected_ids as $selected_id) : ?>
+                            <input type="hidden" name="selected_ids[]" value="<?php echo $selected_id; ?>">
+                        <?php endforeach; ?>
                         <input type="hidden" name="total_harga" value="<?php echo $total_harga; ?>">
 
                     </form>

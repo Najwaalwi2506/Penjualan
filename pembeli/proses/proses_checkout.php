@@ -29,14 +29,24 @@ if (isset($_FILES['bukti_pembayaran']) && $_FILES['bukti_pembayaran']['error'] =
     }
 }
 
-// Ambil keranjang pembeli
+// Ambil item terpilih dari keranjang pembeli
+$selected_ids = array();
+if (!empty($_POST['selected_ids']) && is_array($_POST['selected_ids'])) {
+    $selected_ids = array_map('intval', $_POST['selected_ids']);
+    $selected_ids = array_filter($selected_ids);
+}
+$selected_filter = '';
+if (!empty($selected_ids)) {
+    $selected_filter = ' AND k.id IN (' . implode(',', $selected_ids) . ')';
+}
+
 $keranjang = mysqli_query($koneksi, "
     SELECT k.*, p.harga_jual, t.id as toko_id, j.nama_jenis, j.satuan
     FROM keranjang k
     JOIN produk p ON k.produk_id = p.id
     JOIN jenis_produk j ON p.jenis_produk_id = j.id
     JOIN toko t ON p.toko_id = t.id
-    WHERE k.user_id = $user_id
+    WHERE k.user_id = $user_id $selected_filter
 ");
 
 if (mysqli_num_rows($keranjang) == 0) {
@@ -128,8 +138,18 @@ foreach ($toko_pesanan as $toko_id => $data) {
     }
 }
 
-// Hapus keranjang setelah checkout berhasil
-mysqli_query($koneksi, "DELETE FROM keranjang WHERE user_id = $user_id");
+// Hapus item terpilih dari keranjang setelah checkout berhasil
+if (!empty($selected_ids)) {
+    mysqli_query($koneksi, "DELETE FROM keranjang WHERE user_id = $user_id AND id IN (" . implode(',', $selected_ids) . ")");
+} else {
+    mysqli_query($koneksi, "DELETE FROM keranjang WHERE user_id = $user_id");
+}
+
+$subject = 'Pesanan Baru Dibuat';
+$message = '<p>Pembeli dengan ID ' . $user_id . ' telah membuat pesanan baru.</p>';
+$message .= '<p>Jumlah toko: ' . count($toko_pesanan) . '</p>';
+$message .= '<p>Total harga: ' . format_rupiah($grand_total) . '</p>';
+send_notification_email($koneksi, $subject, $message);
 
 // Redirect ke pesanan dengan success message
 header('Location: ../pesanan.php?success=Pesanan berhasil dibuat');

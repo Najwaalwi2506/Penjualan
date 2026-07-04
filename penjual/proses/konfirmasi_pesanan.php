@@ -41,30 +41,10 @@ $insert = "INSERT INTO konfirmasi_penjual (pesanan_id, penjual_id, aksi, catatan
            ON DUPLICATE KEY UPDATE aksi='dikonfirmasi', catatan=$catatan_sql, dilakukan_pada=NOW()";
 mysqli_query($koneksi, $insert);
 
+$subject = 'Pesanan Dikonfirmasi oleh Penjual';
+$message = '<p>Pesanan dengan ID ' . $pesanan_id . ' telah dikonfirmasi oleh penjual.</p>';
+send_notification_email($koneksi, $subject, $message);
+
 header('Location: ../pesanan_detail.php?id=' . $pesanan_id . '&success=Pesanan+dikonfirmasi');
 exit;
-
-?>
-<?php
-include '../../Koneksi.php';
-check_login();
-check_role(['penjual']);
-
-$user_id = $_SESSION['user_id'];
-$toko = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM toko WHERE user_id = $user_id"));
-$toko_id = $toko['id'];
-
-$pesanan_id = sanitize($koneksi, $_POST['pesanan_id']);
-
-// Update status pesanan
-$query = "UPDATE pesanan SET status = 'dikonfirmasi' WHERE id = $pesanan_id AND toko_id = $toko_id";
-if (mysqli_query($koneksi, $query)) {
-    // Insert ke konfirmasi_penjual
-    $insert = "INSERT INTO konfirmasi_penjual (pesanan_id, toko_id, konfirmasi_date) VALUES ($pesanan_id, $toko_id, NOW())";
-    mysqli_query($koneksi, $insert);
-    
-    header('Location: ../pesanan.php?success=Pesanan berhasil dikonfirmasi');
-} else {
-    die('Error: ' . mysqli_error($koneksi));
-}
 ?>

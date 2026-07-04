@@ -7,6 +7,26 @@ $user_id = $_SESSION['user_id'];
 $toko = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM toko WHERE user_id = $user_id"));
 $toko_id = $toko['id'];
 
+// Ambil ID produk dari parameter
+$produk_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+if (!$produk_id) {
+    die('Produk tidak ditemukan');
+}
+
+// Ambil data produk
+$produk = mysqli_fetch_assoc(mysqli_query($koneksi, "
+    SELECT p.*, j.nama_jenis, j.satuan, k.nama as kategori
+    FROM produk p
+    JOIN jenis_produk j ON p.jenis_produk_id = j.id
+    JOIN kategori_produk k ON j.kategori_id = k.id
+    WHERE p.id = $produk_id AND p.toko_id = $toko_id
+"));
+
+if (!$produk) {
+    die('Produk tidak ditemukan atau Anda tidak memiliki akses');
+}
+
 // Ambil kategori dan jenis produk
 $kategori = mysqli_query($koneksi, "SELECT * FROM kategori_produk ORDER BY nama");
 $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_produk j JOIN kategori_produk k ON j.kategori_id = k.id ORDER BY k.nama, j.nama_jenis");
@@ -16,7 +36,7 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Produk</title>
+    <title>Edit Produk</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -44,7 +64,7 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
     <div class="main-content">
         <!-- NAVBAR -->
         <div class="navbar">
-            <div class="navbar-brand"><span class="material-symbols-outlined">inventory_2</span> Tambah Produk Baru</div>
+            <div class="navbar-brand"><span class="material-symbols-outlined">edit</span> Edit Produk</div>
             <div class="navbar-right">
                 <div class="navbar-user">
                     <div class="avatar">
@@ -65,17 +85,21 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
             </div>
         </div>
         
-        <h1 class="page-title">Tambah Produk Baru</h1>
+        <h1 class="page-title">Edit Produk: <?php echo htmlspecialchars($produk['nama_jenis']); ?></h1>
         
         <div class="card" style="max-width: 600px; margin: 0 auto;">
-            <form method="POST" action="proses/tambah_produk.php" enctype="multipart/form-data">
+            <form method="POST" action="proses/edit_produk.php" enctype="multipart/form-data">
+                <input type="hidden" name="produk_id" value="<?php echo $produk_id; ?>">
+                
                 <div class="form-group">
                     <label for="jenis">Jenis Produk *</label>
                     <select id="jenis" name="jenis_produk_id" required>
                         <option value="">- Pilih Jenis Produk -</option>
                         <?php 
+                        mysqli_data_seek($jenis, 0);
                         while ($row = mysqli_fetch_assoc($jenis)) {
-                            echo "<option value='{$row['id']}' data-satuan='{$row['satuan']}'>{$row['nama_jenis']} ({$row['nama_kategori']})</option>";
+                            $selected = ($row['id'] == $produk['jenis_produk_id']) ? 'selected' : '';
+                            echo "<option value='{$row['id']}' data-satuan='{$row['satuan']}' $selected>{$row['nama_jenis']} ({$row['nama_kategori']})</option>";
                         }
                         ?>
                     </select>
@@ -83,37 +107,43 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
                 
                 <div class="form-group">
                     <label for="harga_display">Harga Jual (Rp) *</label>
-                    <input type="text" id="harga_display" inputmode="numeric" placeholder="Contoh: 500000" required>
-                    <input type="hidden" id="harga_jual" name="harga_jual" value="">
-                    <small id="harga_preview" style="color:#666;">Isi nominal tanpa tanda titik atau koma.</small>
+                    <input type="text" id="harga_display" inputmode="numeric" placeholder="Contoh: 500000" value="<?php echo number_format($produk['harga_jual'], 0, '', '.'); ?>" required>
+                    <input type="hidden" id="harga_jual" name="harga_jual" value="<?php echo $produk['harga_jual']; ?>">
+                    <small id="harga_preview" style="color:#666;">Preview: Rp <?php echo number_format($produk['harga_jual'], 0, '', '.'); ?></small>
                 </div>
                 
                 <div class="form-group">
                     <label for="stok">Jumlah Stok *</label>
-                    <input type="number" id="stok" name="jumlah_stok" placeholder="0" required min="0" step="0.01">
-                    <small id="stok_help">Satuan mengikuti jenis produk yang dipilih (kg/liter).</small>
+                    <input type="number" id="stok" name="jumlah_stok" placeholder="0" value="<?php echo format_stock($produk['jumlah_stok']); ?>" required min="0" step="0.01">
+                    <small id="stok_help">Satuan: <strong><?php echo strtoupper($produk['satuan']); ?></strong></small>
                 </div>
                 
                 <div class="form-group">
                     <label for="deskripsi">Deskripsi Produk</label>
-                    <textarea id="deskripsi" name="deskripsi" placeholder="Masukkan deskripsi produk..." rows="4"></textarea>
+                    <textarea id="deskripsi" name="deskripsi" placeholder="Masukkan deskripsi produk..." rows="4"><?php echo htmlspecialchars($produk['deskripsi']); ?></textarea>
                 </div>
                 
                 <div class="form-group">
                     <label for="foto">Foto Produk</label>
+                    <?php if (!empty($produk['foto_produk']) && file_exists(__DIR__ . '/../uploads/' . $produk['foto_produk'])): ?>
+                        <div style="margin-bottom: 10px;">
+                            <img src="../uploads/<?php echo htmlspecialchars($produk['foto_produk']); ?>" alt="Foto Produk" style="max-width: 150px; border-radius: 8px;">
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">Foto saat ini</p>
+                        </div>
+                    <?php endif; ?>
                     <input type="file" id="foto" name="foto_produk" accept="image/*">
-                    <small>Format: JPG, PNG (Max 2MB)</small>
+                    <small>Biarkan kosong jika tidak ingin mengubah foto. Format: JPG, PNG (Max 2MB)</small>
                 </div>
                 
                 <div class="form-group">
                     <label for="status">
-                        <input type="checkbox" id="status" name="is_tersedia" value="1" checked>
+                        <input type="checkbox" id="status" name="is_tersedia" value="1" <?php echo $produk['is_tersedia'] ? 'checked' : ''; ?>>
                         Produk Tersedia
                     </label>
                 </div>
                 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" class="btn btn-primary btn-block"><span class="material-symbols-outlined">save</span> Simpan Produk</button>
+                    <button type="submit" class="btn btn-primary btn-block"><span class="material-symbols-outlined">save</span> Simpan Perubahan</button>
                     <a href="produk.php" class="btn btn-secondary btn-block"><span class="material-symbols-outlined">arrow_back</span> Batal</a>
                 </div>
             </form>

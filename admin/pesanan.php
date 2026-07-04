@@ -54,7 +54,7 @@ $cnt_dibatalkan = count_by_status('dibatalkan', $koneksi);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Pesanan - Admin</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../admin/Style.css">
 </head>
 <body>
 <div class="wrapper">
@@ -143,7 +143,7 @@ $cnt_dibatalkan = count_by_status('dibatalkan', $koneksi);
                             <th>No</th>
                             <th>Kode Pesanan</th>
                             <th>Pembeli</th>
-                            <th>Toko</th>
+                            <th>Penjual</th>
                             <th>Total</th>
                             <th>Status</th>
                             <th>Aksi</th>

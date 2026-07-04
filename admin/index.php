@@ -15,7 +15,7 @@ $pesanan_menunggu_penjual = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT CO
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../admin/Style.css">
 </head>
 <body>
 <div class="wrapper">
@@ -31,6 +31,7 @@ $pesanan_menunggu_penjual = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT CO
             <li><a href="kelola_toko.php"><span class="material-symbols-outlined icon">store</span> Kelola Toko</a></li>
             <li><a href="pesanan.php"><span class="material-symbols-outlined icon">inventory_2</span> Data Pesanan <?php echo $pesanan_menunggu_penjual > 0 ? '<span class="notif-badge">' . $pesanan_menunggu_penjual . '</span>' : ''; ?></a></li>
             <li><a href="laporan_penjualan.php"><span class="material-symbols-outlined icon">bar_chart</span> Laporan Penjualan</a></li>
+            <li><a href="settings.php"><span class="material-symbols-outlined icon">email</span> Notifikasi Email</a></li>
             <li><a href="kelola_kategori.php"><span class="material-symbols-outlined icon">label</span> Kategori & Jenis Produk</a></li>
             <li class="sidebar-title">Akun</li>
             <li><a href="../auth/logout.php"><span class="material-symbols-outlined icon">logout</span> Logout</a></li>

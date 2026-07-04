@@ -33,6 +33,10 @@ if (!$update) {
     exit;
 }
 
+$subject = 'Pesanan Telah Dikirim';
+$message = '<p>Pesanan dengan ID ' . $pesanan_id . ' telah ditandai sebagai dikirim oleh penjual.</p>';
+send_notification_email($koneksi, $subject, $message);
+
 // Redirect kembali ke detail pesanan
 header('Location: ../pesanan_detail.php?id=' . $pesanan_id . '&success=Pesanan+ditandai+dikirim');
 exit;

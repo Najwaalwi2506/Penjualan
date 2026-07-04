@@ -15,6 +15,12 @@ if (!$koneksi){
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
+// Jika tabel setting belum ada, buat otomatis
+mysqli_query($koneksi, "CREATE TABLE IF NOT EXISTS app_settings (
+    setting_key VARCHAR(100) PRIMARY KEY,
+    setting_value TEXT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
 // Helper function untuk sanitasi input
 function sanitize($koneksi, $input) {
     return mysqli_real_escape_string($koneksi, trim($input));
@@ -23,6 +29,162 @@ function sanitize($koneksi, $input) {
 // Helper function untuk format rupiah
 function format_rupiah($nominal) {
     return "Rp " . number_format($nominal, 0, ',', '.');
+}
+
+function format_number_input($value) {
+    if ($value === null || $value === '') {
+        return '';
+    }
+    $value = (string)$value;
+    if (strpos($value, '.') !== false) {
+        $value = rtrim($value, '0');
+        $value = rtrim($value, '.');
+    }
+    return $value;
+}
+
+function format_stock($value) {
+    return format_number_input($value);
+}
+
+function get_app_setting($koneksi, $key, $default = null) {
+    $key = mysqli_real_escape_string($koneksi, $key);
+    $result = mysqli_query($koneksi, "SELECT setting_value FROM app_settings WHERE setting_key = '$key' LIMIT 1");
+    if ($result && mysqli_num_rows($result) > 0) {
+        return mysqli_fetch_assoc($result)['setting_value'];
+    }
+    return $default;
+}
+
+function set_app_setting($koneksi, $key, $value) {
+    $key = mysqli_real_escape_string($koneksi, $key);
+    $value = mysqli_real_escape_string($koneksi, $value);
+    mysqli_query($koneksi, "INSERT INTO app_settings (setting_key, setting_value) VALUES ('$key', '$value') ON DUPLICATE KEY UPDATE setting_value = '$value'");
+}
+
+function send_system_email($koneksi, $to, $subject, $message, $additional_headers = []) {
+    $smtp_host = get_app_setting($koneksi, 'smtp_host', '');
+    $smtp_port = get_app_setting($koneksi, 'smtp_port', '25');
+    $smtp_user = get_app_setting($koneksi, 'smtp_user', '');
+    $smtp_pass = get_app_setting($koneksi, 'smtp_pass', '');
+    $smtp_secure = strtolower(get_app_setting($koneksi, 'smtp_secure', ''));
+    $from_address = get_app_setting($koneksi, 'mail_from_address', 'noreply@example.com');
+    $from_name = get_app_setting($koneksi, 'mail_from_name', 'Sistem Penjualan Pupuk');
+    $reply_to = get_app_setting($koneksi, 'mail_reply_to', $from_address);
+
+    $headers = array_merge([
+        'MIME-Version: 1.0',
+        'Content-type: text/html; charset=UTF-8',
+        'From: ' . $from_name . ' <' . $from_address . '>',
+    ], $additional_headers);
+
+    if ($reply_to) {
+        $headers[] = 'Reply-To: ' . $reply_to;
+    }
+
+    if ($smtp_host !== '') {
+        try {
+            return send_email_via_smtp($to, $subject, $message, $headers, [
+                'host' => $smtp_host,
+                'port' => intval($smtp_port),
+                'user' => $smtp_user,
+                'pass' => $smtp_pass,
+                'secure' => $smtp_secure,
+                'from' => $from_address,
+            ]);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    return mail($to, $subject, $message, implode("\r\n", $headers));
+}
+
+function send_email_via_smtp($to, $subject, $message, $headers, $transport) {
+    $remote_socket = $transport['host'] . ':' . $transport['port'];
+    $context_options = [];
+    if ($transport['secure'] === 'ssl') {
+        $remote_socket = 'ssl://' . $remote_socket;
+        $context_options['ssl'] = [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true,
+        ];
+    }
+
+    $context = stream_context_create($context_options);
+    $fp = @stream_socket_client($remote_socket, $errno, $errstr, 15, STREAM_CLIENT_CONNECT, $context);
+    if (!$fp) {
+        return false;
+    }
+
+    $response = smtp_get_response($fp);
+    if (strpos($response, '220') !== 0) {
+        fclose($fp);
+        return false;
+    }
+
+    $hostname = gethostname() ?: 'localhost';
+    smtp_command($fp, "EHLO $hostname", ['250']);
+
+    if ($transport['secure'] === 'tls') {
+        smtp_command($fp, 'STARTTLS', ['220']);
+        stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+        smtp_command($fp, "EHLO $hostname", ['250']);
+    }
+
+    if (!empty($transport['user'])) {
+        smtp_command($fp, 'AUTH LOGIN', ['334']);
+        smtp_command($fp, base64_encode($transport['user']), ['334']);
+        smtp_command($fp, base64_encode($transport['pass']), ['235']);
+    }
+
+    smtp_command($fp, "MAIL FROM: <" . $transport['from'] . ">", ['250']);
+    smtp_command($fp, "RCPT TO: <" . $to . ">", ['250', '251']);
+    smtp_command($fp, 'DATA', ['354']);
+
+    $headers[] = 'Subject: ' . $subject;
+    $headers[] = 'To: ' . $to;
+    $headers[] = 'Date: ' . date('r');
+    $raw_message = implode("\r\n", $headers) . "\r\n\r\n" . $message . "\r\n.";
+    fwrite($fp, $raw_message . "\r\n");
+
+    $response = smtp_get_response($fp);
+    $ok = strpos($response, '250') === 0;
+    smtp_command($fp, 'QUIT', ['221']);
+    fclose($fp);
+
+    return $ok;
+}
+
+function smtp_get_response($fp) {
+    $response = '';
+    while (($line = fgets($fp, 515)) !== false) {
+        $response .= $line;
+        if (isset($line[3]) && $line[3] === ' ') {
+            break;
+        }
+    }
+    return $response;
+}
+
+function smtp_command($fp, $command, $expectedCodes = []) {
+    fwrite($fp, $command . "\r\n");
+    $response = smtp_get_response($fp);
+    foreach ($expectedCodes as $code) {
+        if (strpos($response, $code) === 0) {
+            return $response;
+        }
+    }
+    throw new Exception('SMTP command failed: ' . trim($response));
+}
+
+function send_notification_email($koneksi, $subject, $message) {
+    $notify_to = get_app_setting($koneksi, 'notification_email', '');
+    if (empty($notify_to)) {
+        return false;
+    }
+    return send_system_email($koneksi, $notify_to, $subject, $message);
 }
 
 // Helper function untuk cek login

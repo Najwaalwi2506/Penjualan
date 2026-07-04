@@ -56,28 +56,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <div class="wrapper">
     <div class="sidebar">
-        <div style="padding: 20px; border-bottom: 1px solid #444;">
-            <h3 style="color: #667eea; font-size: 18px;">Toko Saya</h3>
+        <div class="sidebar-head">
+            <h3><span class="material-symbols-outlined icon">storefront</span> Toko Saya</h3>
+            <p><?php echo htmlspecialchars($toko['nama_toko']); ?></p>
         </div>
         <ul class="sidebar-menu">
             <li class="sidebar-title">Menu Utama</li>
-            <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="produk.php">Produk Saya</a></li>
-            <li><a href="pesanan.php">Pesanan Masuk</a></li>
-            <li><a href="riwayat.php">Riwayat Penjualan</a></li>
+            <li><a href="dashboard.php"><span class="material-symbols-outlined icon">dashboard</span> Dashboard</a></li>
+            <li><a href="produk.php"><span class="material-symbols-outlined icon">inventory_2</span> Produk Saya</a></li>
+            <li><a href="pesanan.php"><span class="material-symbols-outlined icon">receipt_long</span> Pesanan Masuk</a></li>
+            <li><a href="riwayat.php"><span class="material-symbols-outlined icon">bar_chart</span> Riwayat Penjualan</a></li>
             <li class="sidebar-title">Pengaturan</li>
-            <li><a href="toko_edit.php" class="active">Atur Toko</a></li>
+            <li><a href="toko_edit.php" class="active"><span class="material-symbols-outlined icon">settings</span> Atur Toko</a></li>
             <li class="sidebar-title">Akun</li>
-            <li><a href="../auth/logout.php">Logout</a></li>
+            <li><a href="../auth/logout.php"><span class="material-symbols-outlined icon">logout</span> Logout</a></li>
         </ul>
     </div>
 
     <div class="main-content">
         <div class="navbar">
-            <div class="navbar-brand">Atur Toko</div>
+            <div class="navbar-brand"><span class="material-symbols-outlined">settings</span> Atur Toko</div>
             <div class="navbar-right">
-                <div class="navbar-links">
-                    <a href="dashboard.php">Dashboard</a>
+                <div class="navbar-user">
+                    <div class="avatar">
+                        <?php if (!empty($_SESSION['avatar']) && file_exists(__DIR__ . '/../uploads/' . $_SESSION['avatar'])): ?>
+                            <img src="../uploads/<?php echo htmlspecialchars($_SESSION['avatar']); ?>" alt="avatar">
+                        <?php else: ?>
+                            <span class="avatar-initials"><?php echo strtoupper(substr(trim($_SESSION['nama'] ?? 'P'),0,1)); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name"><?php echo htmlspecialchars($_SESSION['nama'] ?? 'Penjual'); ?></div>
+                        <div class="user-role"><span class="badge badge-<?php echo strtolower($_SESSION['role'] ?? 'penjual'); ?>"><?php echo htmlspecialchars(ucfirst($_SESSION['role'] ?? 'Penjual')); ?></span></div>
+                    </div>
+                    <div class="navbar-links">
+                        <a href="dashboard.php" class="btn btn-secondary btn-sm">Dashboard</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -130,5 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
+<script src="../js/admin-responsive.js"></script>
 </body>
 </html>

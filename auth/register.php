@@ -36,13 +36,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             if (mysqli_query($koneksi, $query)) {
                 $success = true;
+                $user_id = mysqli_insert_id($koneksi);
                 // Jika penjual, buat toko otomatis
                 if ($jenis == 'penjual') {
-                    $user_id = mysqli_insert_id($koneksi);
                     $nama_toko = "Penjual " . $nama;
                     $query_toko = "INSERT INTO toko (user_id, nama_toko, is_active) VALUES ($user_id, '$nama_toko', 1)";
                     mysqli_query($koneksi, $query_toko);
                 }
+                // Kirim notifikasi ke email admin jika sudah dikonfigurasi
+                $subject = 'Pendaftaran Akun Baru di Sistem Pupuk';
+                $message = '<p>Akun baru telah didaftarkan dengan rincian berikut:</p>' .
+                           '<ul>' .
+                           '<li>Nama: ' . htmlspecialchars($nama) . '</li>' .
+                           '<li>Email: ' . htmlspecialchars($email) . '</li>' .
+                           '<li>Role: ' . htmlspecialchars($role) . '</li>' .
+                           '<li>Jenis keanggotaan: ' . htmlspecialchars($jenis) . '</li>' .
+                           '</ul>';
+                send_notification_email($koneksi, $subject, $message);
             } else {
                 $error = 'Gagal membuat akun: ' . mysqli_error($koneksi);
             }

@@ -44,19 +44,20 @@ $detail = mysqli_query($koneksi, "
 <div class="wrapper">
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <div style="padding: 20px; border-bottom: 1px solid #444;">
-            <h3 style="color: #667eea; font-size: 18px;">🏪 Toko Saya</h3>
+        <div class="sidebar-head">
+            <h3><span class="material-symbols-outlined icon">storefront</span> Toko Saya</h3>
+            <p><?php echo htmlspecialchars($toko['nama_toko']); ?></p>
         </div>
         <ul class="sidebar-menu">
             <li class="sidebar-title">Menu Utama</li>
-            <li><a href="dashboard.php">📊 Dashboard</a></li>
-            <li><a href="produk.php">📦 Produk Saya</a></li>
-            <li><a href="pesanan.php" class="active">📋 Pesanan Masuk</a></li>
-            <li><a href="riwayat.php">📈 Riwayat Penjualan</a></li>
+            <li><a href="dashboard.php"><span class="material-symbols-outlined icon">dashboard</span> Dashboard</a></li>
+            <li><a href="produk.php"><span class="material-symbols-outlined icon">inventory_2</span> Produk Saya</a></li>
+            <li><a href="pesanan.php" class="active"><span class="material-symbols-outlined icon">receipt_long</span> Pesanan Masuk</a></li>
+            <li><a href="riwayat.php"><span class="material-symbols-outlined icon">bar_chart</span> Riwayat Penjualan</a></li>
             <li class="sidebar-title">Pengaturan</li>
-            <li><a href="toko_edit.php">⚙️ Atur Toko</a></li>
+            <li><a href="toko_edit.php"><span class="material-symbols-outlined icon">settings</span> Atur Toko</a></li>
             <li class="sidebar-title">Akun</li>
-            <li><a href="../auth/logout.php">🚪 Logout</a></li>
+            <li><a href="../auth/logout.php"><span class="material-symbols-outlined icon">logout</span> Logout</a></li>
         </ul>
     </div>
     
@@ -64,23 +65,38 @@ $detail = mysqli_query($koneksi, "
     <div class="main-content">
         <!-- NAVBAR -->
         <div class="navbar">
-            <div class="navbar-brand">📋 Detail Pesanan</div>
+            <div class="navbar-brand"><span class="material-symbols-outlined">receipt_long</span> Detail Pesanan</div>
             <div class="navbar-right">
-                <div class="navbar-links">
-                    <a href="pesanan.php">← Pesanan Masuk</a>
+                <div class="navbar-user">
+                    <div class="avatar">
+                        <?php if (!empty($_SESSION['avatar']) && file_exists(__DIR__ . '/../uploads/' . $_SESSION['avatar'])): ?>
+                            <img src="../uploads/<?php echo htmlspecialchars($_SESSION['avatar']); ?>" alt="avatar">
+                        <?php else: ?>
+                            <span class="avatar-initials"><?php echo strtoupper(substr(trim($_SESSION['nama'] ?? 'P'),0,1)); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name"><?php echo htmlspecialchars($_SESSION['nama'] ?? 'Penjual'); ?></div>
+                        <div class="user-role"><span class="badge badge-<?php echo strtolower($_SESSION['role'] ?? 'penjual'); ?>"><?php echo htmlspecialchars(ucfirst($_SESSION['role'] ?? 'Penjual')); ?></span></div>
+                    </div>
+                    <div class="navbar-links">
+                        <a href="pesanan.php" class="btn btn-secondary btn-sm">Pesanan Masuk</a>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <h1 class="page-title">📋 Detail Pesanan <?php echo $pesanan['kode_pesanan']; ?></h1>
+        <h1 class="page-title">Detail Pesanan <?php echo $pesanan['kode_pesanan']; ?></h1>
         <p class="page-subtitle">Relasi ONE-TO-MANY: 1 Pesanan memiliki MANY Detail Item</p>
-        
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <div class="alert alert-info" style="margin-bottom: 20px;">
+            Halaman ini dibuat untuk layar tablet dan ponsel. Detail pesanan akan otomatis menumpuk dalam satu kolom pada layar kecil, sehingga lebih mudah dibaca.
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: start;">
             <!-- INFO PESANAN & ITEM -->
             <div>
                 <!-- INFO PEMBELI -->
                 <div class="card">
-                    <div class="card-header">👤 Informasi Pembeli</div>
+                    <div class="card-header"><span class="material-symbols-outlined">person</span> Informasi Pembeli</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px;">
                         <div>
                             <small style="color: #999;">Nama Pembeli</small><br>
@@ -99,8 +115,8 @@ $detail = mysqli_query($koneksi, "
                 
                 <!-- ITEM PESANAN -->
                 <div class="card" style="margin-top: 20px;">
-                    <div class="card-header">📦 Item Pesanan</div>
-                    <div style="overflow-x: auto;">
+                    <div class="card-header"><span class="material-symbols-outlined">inventory_2</span> Item Pesanan</div>
+                    <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -135,8 +151,8 @@ $detail = mysqli_query($koneksi, "
             <!-- RINGKASAN PEMBAYARAN & ACTION -->
             <div>
                 <div class="card">
-                    <div class="card-header">💰 Ringkasan Pembayaran</div>
-                    <div style="padding: 20px;">
+                    <div class="card-header"><span class="material-symbols-outlined">payments</span> Ringkasan Pembayaran</div>
+                    <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
                             <span>Subtotal (<?php echo $total_item; ?> item)</span>
                             <strong><?php echo format_rupiah($pesanan['total_harga']); ?></strong>
@@ -157,31 +173,34 @@ $detail = mysqli_query($koneksi, "
                 </div>
                 
                 <div class="card" style="margin-top: 20px;">
-                    <div class="card-header">⚙️ Aksi Pesanan</div>
-                    <div style="padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+                    <div class="card-header"><span class="material-symbols-outlined">play_circle</span> Aksi Pesanan</div>
+                    <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
                         <?php if ($pesanan['status'] == 'menunggu_konfirmasi') { ?>
                         <form method="POST" action="proses/konfirmasi_pesanan.php">
                             <input type="hidden" name="pesanan_id" value="<?php echo $pesanan['id']; ?>">
-                            <button type="submit" class="btn btn-success btn-block">✓ Konfirmasi Pesanan</button>
+                            <button type="submit" class="btn btn-success btn-block"><span class="material-symbols-outlined">check_circle</span> Konfirmasi Pesanan</button>
                         </form>
                         <form method="POST" action="proses/tolak_pesanan.php">
                             <input type="hidden" name="pesanan_id" value="<?php echo $pesanan['id']; ?>">
-                            <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Yakin tolak pesanan ini?')">✗ Tolak Pesanan</button>
+                            <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Yakin tolak pesanan ini?')"><span class="material-symbols-outlined">cancel</span> Tolak Pesanan</button>
                         </form>
                         <?php } elseif ($pesanan['status'] == 'dikonfirmasi') { ?>
                         <form method="POST" action="proses/kirim_pesanan.php">
                             <input type="hidden" name="pesanan_id" value="<?php echo $pesanan['id']; ?>">
-                            <button type="submit" class="btn btn-primary btn-block">📦 Tandai Dikirim</button>
+                            <button type="submit" class="btn btn-primary btn-block"><span class="material-symbols-outlined">local_shipping</span> Tandai Dikirim</button>
                         </form>
                         <?php } elseif ($pesanan['status'] == 'dikirim') { ?>
-                        <div class="alert alert-info">📦 Pesanan sudah dikirim, tunggu pembeli mengkonfirmasi penerimaan</div>
+                        <div class="alert alert-info"><span class="material-symbols-outlined">local_shipping</span> Pesanan sudah dikirim, tunggu pembeli mengkonfirmasi penerimaan</div>
                         <?php } elseif ($pesanan['status'] == 'selesai') { ?>
-                        <div class="alert alert-success">✓ Pesanan sudah selesai</div>
+                        <div class="alert alert-success"><span class="material-symbols-outlined">check_circle</span> Pesanan sudah selesai</div>
                         <?php } ?>
                     </div>
                 </div>
                 
-                <a href="pesanan.php" class="btn btn-secondary btn-block" style="margin-top: 20px;">← Kembali</a>
+                <a href="pesanan.php" class="btn btn-secondary btn-block" style="margin-top: 20px; padding: 16px 18px; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Kembali ke Daftar Pesanan
+                </a>
             </div>
         </div>
     </div>
