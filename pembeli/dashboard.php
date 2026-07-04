@@ -5,7 +5,32 @@ check_role(['pembeli']);
 
 $user_id = $_SESSION['user_id'];
 
-// Ambil semua produk
+$nama_barang_id = isset($_GET['nama_barang']) ? (int)$_GET['nama_barang'] : 0;
+$daerah = isset($_GET['daerah']) ? trim($_GET['daerah']) : '';
+$kategori_id = isset($_GET['kategori']) ? (int)$_GET['kategori'] : 0;
+$sort = isset($_GET['sort']) ? $_GET['sort'] : 'terbaru';
+$sort = in_array($sort, ['terbaru', 'termurah', 'termahal'], true) ? $sort : 'terbaru';
+
+$nama_barang_options_query = "
+    SELECT DISTINCT j.id AS jenis_id, j.nama_jenis, j.kategori_id
+    FROM produk p
+    JOIN jenis_produk j ON p.jenis_produk_id = j.id
+    JOIN toko t ON p.toko_id = t.id
+    JOIN users u ON t.user_id = u.id
+    WHERE p.is_tersedia = 1 AND u.is_active = 1
+    ORDER BY j.kategori_id, j.nama_jenis
+";
+$nama_barang_options_result = mysqli_query($koneksi, $nama_barang_options_query);
+$nama_barang_options = [];
+while ($option = mysqli_fetch_assoc($nama_barang_options_result)) {
+    $nama_barang_options[] = [
+        'id' => (int)$option['jenis_id'],
+        'nama' => $option['nama_jenis'],
+        'kategori_id' => (int)$option['kategori_id']
+    ];
+}
+
+// Ambil produk sesuai pencarian, filter kategori, dan urutan harga
 $query = "
     SELECT p.*, j.nama_jenis, j.satuan, t.nama_toko, k.nama as nama_kategori, u.nama as penjual_nama, u.alamat
     FROM produk p
@@ -13,9 +38,32 @@ $query = "
     JOIN toko t ON p.toko_id = t.id
     JOIN kategori_produk k ON j.kategori_id = k.id
     JOIN users u ON t.user_id = u.id
-    WHERE p.is_tersedia = 1 AND u.is_active = 1
-    ORDER BY p.created_at DESC
-";
+    WHERE p.is_tersedia = 1 AND u.is_active = 1";
+
+if ($nama_barang_id > 0) {
+    $query .= " AND j.id = $nama_barang_id";
+}
+
+if ($daerah !== '') {
+    $keyword_daerah = mysqli_real_escape_string($koneksi, $daerah);
+    $query .= " AND (u.alamat LIKE '%$keyword_daerah%' OR t.nama_toko LIKE '%$keyword_daerah%' OR u.nama LIKE '%$keyword_daerah%')";
+}
+
+if ($kategori_id > 0) {
+    $query .= " AND j.kategori_id = $kategori_id";
+}
+
+switch ($sort) {
+    case 'termurah':
+        $query .= " ORDER BY p.harga_jual ASC";
+        break;
+    case 'termahal':
+        $query .= " ORDER BY p.harga_jual DESC";
+        break;
+    default:
+        $query .= " ORDER BY p.created_at DESC";
+        break;
+}
 
 $result = mysqli_query($koneksi, $query);
 $total_produk = mysqli_num_rows($result);
@@ -104,23 +152,40 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
     <div class="search-card">
         <form method="GET" class="search-form">
             <div class="form-group">
-                <label for="cari">Cari Produk</label>
-                <input type="text" id="cari" name="cari" placeholder="Cari nama produk..." value="<?php echo isset($_GET['cari']) ? htmlspecialchars($_GET['cari']) : ''; ?>">
+                <label for="nama_barang">Nama Barang</label>
+                <select id="nama_barang" name="nama_barang">
+                    <option value="">Semua Nama Barang</option>
+                    <?php foreach ($nama_barang_options as $option): ?>
+                        <option value="<?php echo (int)$option['id']; ?>" <?php echo ($nama_barang_id === (int)$option['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($option['nama']); ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
             <div class="form-group">
-                <label for="kategori">Semua Kategori</label>
+                <label for="daerah">Daerah</label>
+                <input type="text" id="daerah" name="daerah" placeholder="Contoh: Surabaya" value="<?php echo htmlspecialchars($daerah); ?>">
+            </div>
+            <div class="form-group">
+                <label for="kategori">Kategori</label>
                 <select id="kategori" name="kategori">
                     <option value="">Semua Kategori</option>
                     <?php 
-                    $kat = mysqli_query($koneksi, "SELECT * FROM kategori_produk");
+                    $kat = mysqli_query($koneksi, "SELECT * FROM kategori_produk ORDER BY nama");
                     while ($k = mysqli_fetch_assoc($kat)) {
-                        $selected = (isset($_GET['kategori']) && $_GET['kategori'] == $k['id']) ? 'selected' : '';
+                        $selected = ($kategori_id == $k['id']) ? 'selected' : '';
                         echo "<option value='{$k['id']}' $selected>" . htmlspecialchars($k['nama']) . "</option>";
                     }
                     ?>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Cari</button>
+            <div class="form-group">
+                <label for="sort">Harga</label>
+                <select id="sort" name="sort">
+                    <option value="terbaru" <?php echo $sort === 'terbaru' ? 'selected' : ''; ?>>Terbaru</option>
+                    <option value="termurah" <?php echo $sort === 'termurah' ? 'selected' : ''; ?>>Termurah</option>
+                    <option value="termahal" <?php echo $sort === 'termahal' ? 'selected' : ''; ?>>Termahal</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary search-btn">Cari</button>
         </form>
     </div>
 
@@ -150,8 +215,8 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
             <div class="product-body">
                 <div class="product-title"><?php echo htmlspecialchars($row['nama_jenis']); ?></div>
                 <div class="product-store"><?php echo htmlspecialchars($row['nama_toko']); ?></div>
+                <div class="product-location">Lokasi: <?php echo htmlspecialchars($row['alamat']); ?></div>
                 <div class="product-price"><?php echo format_rupiah($row['harga_jual']); ?>/<?php echo htmlspecialchars($row['satuan']); ?></div>
-                <div class="product-rating"><span class="material-symbols-outlined">star</span> 4.8 <span>(120)</span></div>
                 <form method="POST" action="../proses/add_keranjang.php" class="product-actions">
                     <input type="hidden" name="produk_id" value="<?php echo $row['id']; ?>">
                     <input type="number" name="jumlah" class="product-qty" value="1" min="1" max="<?php echo $row['jumlah_stok']; ?>">
@@ -168,5 +233,39 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
     </div>
     <?php } ?>
 </div>
+<script>
+const categorySelect = document.getElementById('kategori');
+const namaBarangSelect = document.getElementById('nama_barang');
+const namaBarangOptions = <?php echo json_encode($nama_barang_options, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+
+function renderNamaBarangOptions(selectedCategoryId) {
+    if (!namaBarangSelect) return;
+
+    const currentValue = namaBarangSelect.value;
+    namaBarangSelect.innerHTML = '<option value="">Semua Nama Barang</option>';
+
+    namaBarangOptions
+        .filter(function (option) {
+            return !selectedCategoryId || String(option.kategori_id) === String(selectedCategoryId);
+        })
+        .forEach(function (option) {
+            const opt = document.createElement('option');
+            opt.value = option.id;
+            opt.textContent = option.nama;
+            if (String(currentValue) === String(option.id)) {
+                opt.selected = true;
+            }
+            namaBarangSelect.appendChild(opt);
+        });
+}
+
+if (categorySelect && namaBarangSelect) {
+    categorySelect.addEventListener('change', function () {
+        renderNamaBarangOptions(this.value);
+    });
+
+    renderNamaBarangOptions(categorySelect.value);
+}
+</script>
 </body>
 </html>
