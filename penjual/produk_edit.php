@@ -44,7 +44,7 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="sidebar-head">
-            <h3><span class="material-symbols-outlined icon">storefront</span> Toko Saya</h3>
+            <h3><span class="material-symbols-outlined icon">storefront</span> Halo</h3>
             <p><?php echo htmlspecialchars($toko['nama_toko']); ?></p>
         </div>
         <ul class="sidebar-menu">
@@ -64,7 +64,6 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
     <div class="main-content">
         <!-- NAVBAR -->
         <div class="navbar">
-            <div class="navbar-brand"><span class="material-symbols-outlined">edit</span> Edit Produk</div>
             <div class="navbar-right">
                 <div class="navbar-user">
                     <div class="avatar">

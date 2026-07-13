@@ -321,8 +321,14 @@ body.sidebar-open {
     padding: 24px 24px 40px;
 }
 
+/* Halaman pembeli (dashboard.php dkk) memakai class main-content + page-shell
+   bersamaan. overflow-y:auto di .main-content (dipakai layout admin) merusak
+   position: sticky pada navbar, jadi di sini dikembalikan ke visible. */
+.main-content.page-shell {
+    overflow-y: visible;
+}
+
 .navbar {
-    position: sticky;
     top: 18px;
     z-index: 20;
     width: 100%;
@@ -917,6 +923,21 @@ body.sidebar-open {
     .footer-grid {
         grid-template-columns: 1fr;
     }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-actions {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .product-qty {
+        width: 100%;
+    }
 }
 
 /* Ensure no horizontal overflow */
@@ -924,6 +945,7 @@ html, body {
     overflow-x: hidden;
 }
 
+.card {
     background: #ffffff;
     border-radius: 20px;
     padding: 1.5rem;
@@ -1388,6 +1410,86 @@ label {
     border-color: #7dd3fc;
 }
 
+/* CHECKOUT GRID (halaman konfirmasi pesanan) */
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    width: 100%;
+}
+
+.checkout-col-main,
+.checkout-col-side {
+    min-width: 0; /* mencegah grid "meledak" melebihi lebar layar karena konten (nomor rekening, nama file, dll) */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .checkout-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* CUSTOM FILE UPLOAD (biar nama file tidak overflow ke samping) */
+.file-upload-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.file-upload-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.file-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: #4facfe;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.file-upload-btn:hover {
+    background: #3b9ce8;
+}
+
+.file-upload-input:focus + .file-upload-btn {
+    outline: 2px solid #4facfe;
+    outline-offset: 2px;
+}
+
+.file-upload-name {
+    flex: 1 1 150px;
+    min-width: 0;
+    max-width: 100%;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
 /* RESPONSIVE */
 @media (max-width: 992px) {
     .navbar-toggle {
@@ -1417,15 +1519,9 @@ label {
         padding: 1rem 1.25rem 1.5rem;
     }
 
-    .navbar {
-        position: sticky;
-        top: 0;
-        border-radius: 8px;
-        padding: 8px 0;
-        padding-left: 1.25rem;
-        padding-right: 1.25rem;
-        margin: 0 -1.25rem 0.75rem -1.25rem;
-    }
+   
+        
+        
 
     .navbar-brand {
         font-size: 1.1rem;
@@ -1458,12 +1554,7 @@ label {
 }
 
 @media (max-width: 768px) {
-    .navbar {
-        padding: 8px 0;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        margin: 0 -1rem 0.5rem -1rem;
-    }
+   
 
     .navbar-brand {
         font-size: 1rem;
@@ -1487,13 +1578,7 @@ label {
 }
 
 @media (max-width: 580px) {
-    .navbar {
-        padding: 6px 0;
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-        margin: 0 -0.75rem 0.5rem -0.75rem;
-    }
-
+    
     .navbar-brand {
         font-size: 0.95rem;
     }
@@ -1611,3 +1696,143 @@ label {
     applyResponsiveState();
 });
 ''; Path('js/admin-responsive.js').write_text(js, encoding='utf-8')
+/* ===================================================
+   PENCARIAN RAMAH PENGGUNA (dashboard.php - pembeli)
+   Desain lebih besar, jelas, dan bertahap untuk
+   memudahkan pengguna lanjut usia.
+=================================================== */
+.search-card-simple {
+    padding: 28px;
+}
+
+.search-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #0f4d2a;
+    margin-bottom: 24px;
+}
+
+.search-card-title .material-symbols-outlined {
+    font-size: 1.7rem;
+    color: #16a34a;
+}
+
+.search-form-simple {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    align-items: start;
+}
+
+.search-form-simple .form-group {
+    margin-bottom: 0;
+}
+
+.search-form-simple label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+.search-form-simple .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #16a34a;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.search-form-simple input,
+.search-form-simple select {
+    min-height: 60px;
+    padding: 1rem 1.1rem;
+    font-size: 1.1rem;
+    border-radius: 16px;
+    border: 2px solid #d1d5db;
+}
+
+.search-form-simple input::placeholder {
+    color: #94a3b8;
+    font-size: 1rem;
+}
+
+.search-form-simple input:focus,
+.search-form-simple select:focus {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 5px rgba(22, 163, 74, 0.15);
+}
+
+.search-btn-simple {
+    grid-column: 1 / -1;
+    min-height: 64px;
+    font-size: 1.2rem;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.search-btn-simple .material-symbols-outlined {
+    font-size: 1.4rem;
+}
+
+@media (max-width: 768px) {
+    .search-card-simple {
+        padding: 20px;
+    }
+
+    .search-card-title {
+        font-size: 1.15rem;
+    }
+
+    .search-form-simple {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .search-form-simple label {
+        font-size: 1.05rem;
+    }
+
+    .search-form-simple input,
+    .search-form-simple select {
+        min-height: 56px;
+        font-size: 1.05rem;
+    }
+
+    .search-btn-simple {
+        min-height: 60px;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .search-card-simple {
+        padding: 16px;
+    }
+
+    .search-card-title {
+        font-size: 1.05rem;
+    }
+
+    .search-form-simple label {
+        font-size: 1rem;
+    }
+
+    .search-form-simple .step-number {
+        width: 26px;
+        height: 26px;
+        font-size: 0.85rem;
+    }
+}

@@ -11,6 +11,15 @@ $kategori_id = isset($_GET['kategori']) ? (int)$_GET['kategori'] : 0;
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'terbaru';
 $sort = in_array($sort, ['terbaru', 'termurah', 'termahal'], true) ? $sort : 'terbaru';
 
+// Jika nama_barang dipilih, pastikan kategori_id konsisten dengan kategori jenis produk itu
+// supaya tidak terjadi kombinasi kategori + nama barang yang saling bertentangan
+if ($nama_barang_id > 0) {
+    $cek_kategori = mysqli_query($koneksi, "SELECT kategori_id FROM jenis_produk WHERE id = $nama_barang_id");
+    if ($row_kat = mysqli_fetch_assoc($cek_kategori)) {
+        $kategori_id = (int)$row_kat['kategori_id'];
+    }
+}
+
 $nama_barang_options_query = "
     SELECT DISTINCT j.id AS jenis_id, j.nama_jenis, j.kategori_id
     FROM produk p
@@ -149,23 +158,15 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
         </div>
     </div>
 
-    <div class="search-card">
-        <form method="GET" class="search-form">
+    <!-- FORM PENCARIAN: Kategori -> Nama Barang -> Daerah -> Harga -->
+    <div class="search-card search-card-simple">
+        <div class="search-card-title">
+            <span class="material-symbols-outlined">search</span>
+            Cari Pupuk yang Anda Butuhkan
+        </div>
+        <form method="GET" class="search-form search-form-simple">
             <div class="form-group">
-                <label for="nama_barang">Nama Barang</label>
-                <select id="nama_barang" name="nama_barang">
-                    <option value="">Semua Nama Barang</option>
-                    <?php foreach ($nama_barang_options as $option): ?>
-                        <option value="<?php echo (int)$option['id']; ?>" <?php echo ($nama_barang_id === (int)$option['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($option['nama']); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="daerah">Daerah</label>
-                <input type="text" id="daerah" name="daerah" placeholder="Contoh: Surabaya" value="<?php echo htmlspecialchars($daerah); ?>">
-            </div>
-            <div class="form-group">
-                <label for="kategori">Kategori</label>
+                <label for="kategori"><span class="step-number">1</span> Kategori</label>
                 <select id="kategori" name="kategori">
                     <option value="">Semua Kategori</option>
                     <?php 
@@ -178,14 +179,29 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
                 </select>
             </div>
             <div class="form-group">
-                <label for="sort">Harga</label>
+                <label for="nama_barang"><span class="step-number">2</span> Nama Barang</label>
+                <select id="nama_barang" name="nama_barang">
+                    <option value="">Semua Nama Barang</option>
+                    <?php foreach ($nama_barang_options as $option): ?>
+                        <option value="<?php echo (int)$option['id']; ?>" <?php echo ($nama_barang_id === (int)$option['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($option['nama']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="daerah"><span class="step-number">3</span> Daerah</label>
+                <input type="text" id="daerah" name="daerah" placeholder="Contoh: Surabaya" value="<?php echo htmlspecialchars($daerah); ?>">
+            </div>
+            <div class="form-group">
+                <label for="sort"><span class="step-number">4</span> Urutkan Harga</label>
                 <select id="sort" name="sort">
                     <option value="terbaru" <?php echo $sort === 'terbaru' ? 'selected' : ''; ?>>Terbaru</option>
                     <option value="termurah" <?php echo $sort === 'termurah' ? 'selected' : ''; ?>>Termurah</option>
                     <option value="termahal" <?php echo $sort === 'termahal' ? 'selected' : ''; ?>>Termahal</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary search-btn">Cari</button>
+            <button type="submit" class="btn btn-primary search-btn search-btn-simple">
+                <span class="material-symbols-outlined">search</span> Cari Sekarang
+            </button>
         </form>
     </div>
 

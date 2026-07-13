@@ -183,6 +183,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-size: 16px;
             margin-top: 1px;
         }
+
+        /* --- Toggle lihat/sembunyikan password --- */
+        .password-wrapper {
+            position: relative;
+        }
+        .password-wrapper input {
+            padding-right: 42px;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #8eb56b;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            line-height: 1;
+        }
+        .toggle-password:hover { color: #2f5a2b; }
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+            display: block;
+        }
+        .toggle-password .icon-hide { display: none; }
+        .toggle-password.is-visible .icon-show { display: none; }
+        .toggle-password.is-visible .icon-hide { display: block; }
+
+        /* Sembunyikan ikon mata bawaan Microsoft Edge, supaya tidak dobel dengan ikon kita */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+
         @media (max-width: 600px) {
             .form-row { grid-template-columns: 1fr; }
             .container { padding: 24px; }
@@ -240,12 +276,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="form-row">
                 <div class="form-group">
                     <label for="password">Password *</label>
-                    <input type="password" id="password" name="password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" required>
+                        <span class="toggle-password" onclick="togglePassword('password', 'toggleIcon1')" id="toggleIcon1">
+                            <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.6 18.6 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </span>
+                    </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="password_confirm">Konfirmasi Password *</label>
-                    <input type="password" id="password_confirm" name="password_confirm" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="password_confirm" name="password_confirm" required>
+                        <span class="toggle-password" onclick="togglePassword('password_confirm', 'toggleIcon2')" id="toggleIcon2">
+                            <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.6 18.6 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </span>
+                    </div>
                 </div>
             </div>
             
@@ -273,5 +333,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <p>Sudah punya akun? <a href="../index.php">Login di sini</a></p>
         </div>
     </div>
+
+    <script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.add('is-visible');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('is-visible');
+            }
+        }
+    </script>
 </body>
 </html>

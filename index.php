@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk — Sistem Penjualan Pupuk PTS Jatim</title>
+    <title>Masuk — Sistem Penjualan Rumah Pupuk</title>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -156,7 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             margin-bottom: 7px;
         }
         input[type="email"],
-        input[type="password"] {
+        input[type="password"],
+        input[type="text"] {
             width: 100%;
             padding: 12px 14px;
             border: 1.5px solid var(--green-100);
@@ -172,6 +173,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             background: var(--white);
         }
         input::placeholder { color: var(--green-300); }
+
+        /* --- Toggle lihat/sembunyikan password --- */
+        .password-wrapper {
+            position: relative;
+        }
+        .password-wrapper input {
+            padding-right: 42px;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--green-300);
+            user-select: none;
+            display: flex;
+            align-items: center;
+            line-height: 1;
+        }
+        .toggle-password:hover { color: var(--green-600); }
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+            display: block;
+        }
+        .toggle-password .icon-hide { display: none; }
+        .toggle-password.is-visible .icon-show { display: none; }
+        .toggle-password.is-visible .icon-hide { display: block; }
+
+        /* Sembunyikan ikon mata bawaan Microsoft Edge, supaya tidak dobel dengan ikon kita */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
 
         .btn-login {
             width: 100%;
@@ -291,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             <div class="brand">
                 <div class="brand-icon">🌱</div>
                 <div>
-                    <div class="brand-name">PTS Jatim</div>
+                    <div class="brand-name">Rumah Pupuk</div>
                     <div class="brand-sub">Sistem Informasi Pupuk</div>
                 </div>
             </div>
@@ -312,8 +348,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password"
-                           placeholder="Masukkan password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password"
+                               placeholder="Masukkan password" required>
+                        <span class="toggle-password" onclick="togglePassword()" id="toggleIcon">
+                            <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.6 18.6 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </span>
+                    </div>
                 </div>
 
                 <button type="submit" name="login" class="btn-login">Masuk</button>
@@ -326,7 +374,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
         <!-- PANEL KANAN: INFO -->
         <div class="panel-info">
-            <div class="info-badge">Anggota PTS Jatim</div>
+            <div class="info-badge">Anggota Rumah Pupuk</div>
             <h1 class="info-headline">
                 Solusi belanja dan jualan pupuk yang lebih praktis
             </h1>
@@ -343,5 +391,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         </div>
 
     </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('toggleIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.add('is-visible');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('is-visible');
+            }
+        }
+    </script>
 </body>
 </html>

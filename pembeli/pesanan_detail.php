@@ -71,8 +71,7 @@ $penjual_contact_url = $penjual_phone !== '' ? 'https://wa.me/' . $penjual_phone
 
 <div class="main-content page-shell" style="max-width: 900px; margin: 0 auto;">
     <h1 class="page-title">📋 Detail Pesanan <?php echo $pesanan['kode_pesanan']; ?></h1>
-    <p class="page-subtitle">Relasi ONE-TO-MANY: 1 Pesanan memiliki MANY Detail Item</p>
-    
+   
     <div class="order-detail-header">
         <div class="order-title">
             <div>

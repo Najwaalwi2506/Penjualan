@@ -39,7 +39,7 @@ $total_penjualan = mysqli_fetch_assoc(mysqli_query($koneksi,
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="sidebar-head">
-            <h3><span class="material-symbols-outlined icon">storefront</span> Toko Saya</h3>
+            <h3><span class="material-symbols-outlined icon">storefront</span> Halo</h3>
             <p><?php echo htmlspecialchars($toko['nama_toko']); ?></p>
         </div>
         <ul class="sidebar-menu">
@@ -59,7 +59,6 @@ $total_penjualan = mysqli_fetch_assoc(mysqli_query($koneksi,
     <div class="main-content">
         <!-- NAVBAR -->
         <div class="navbar">
-            <div class="navbar-brand"><span class="material-symbols-outlined">bar_chart</span> Riwayat Penjualan</div>
             <div class="navbar-right">
                 <div class="navbar-user">
                     <div class="avatar">

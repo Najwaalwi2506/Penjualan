@@ -37,7 +37,7 @@ $pesanan_terbaru = mysqli_query($koneksi, "
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="sidebar-head">
-            <h3><span class="material-symbols-outlined icon">storefront</span> Toko Saya</h3>
+            <h3><span class="material-symbols-outlined icon">storefront</span> Halo</h3>
             <p><?php echo htmlspecialchars($toko['nama_toko']); ?></p>
         </div>
         <ul class="sidebar-menu">
@@ -57,7 +57,7 @@ $pesanan_terbaru = mysqli_query($koneksi, "
     <div class="main-content">
         <!-- NAVBAR -->
         <div class="navbar">
-            <div class="navbar-brand"><span class="material-symbols-outlined">dashboard</span> Dashboard Penjual</div>
+        
             <div class="navbar-right">
                 <div class="navbar-user">
                     <div class="avatar">

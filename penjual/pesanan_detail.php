@@ -45,7 +45,7 @@ $detail = mysqli_query($koneksi, "
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="sidebar-head">
-            <h3><span class="material-symbols-outlined icon">storefront</span> Toko Saya</h3>
+            <h3><span class="material-symbols-outlined icon">storefront</span> Halo</h3>
             <p><?php echo htmlspecialchars($toko['nama_toko']); ?></p>
         </div>
         <ul class="sidebar-menu">
@@ -65,7 +65,6 @@ $detail = mysqli_query($koneksi, "
     <div class="main-content">
         <!-- NAVBAR -->
         <div class="navbar">
-            <div class="navbar-brand"><span class="material-symbols-outlined">receipt_long</span> Detail Pesanan</div>
             <div class="navbar-right">
                 <div class="navbar-user">
                     <div class="avatar">
@@ -87,9 +86,9 @@ $detail = mysqli_query($koneksi, "
         </div>
         
         <h1 class="page-title">Detail Pesanan <?php echo $pesanan['kode_pesanan']; ?></h1>
-        <p class="page-subtitle">Relasi ONE-TO-MANY: 1 Pesanan memiliki MANY Detail Item</p>
+       
         <div class="alert alert-info" style="margin-bottom: 20px;">
-            Halaman ini dibuat untuk layar tablet dan ponsel. Detail pesanan akan otomatis menumpuk dalam satu kolom pada layar kecil, sehingga lebih mudah dibaca.
+            Jika data yang diberikan pembeli sudah sesuai, silahkan mengkik Riwayat Pesanan untuk menandai pesanan selesai. Jika ada masalah, silahkan hubungi pembeli melalui WhatsApp.
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: start;">
             <!-- INFO PESANAN & ITEM -->
@@ -162,7 +161,7 @@ $detail = mysqli_query($koneksi, "
                             <span><?php echo format_rupiah($pesanan['grand_total']); ?></span>
                         </div>
                         <div style="margin-top: 15px;">
-                            <small style="color: #999;">Bukti Pembayaran</small><br>
+                            <small style="color: #999;"> Pembayaran</small><br>
                             <?php if (!empty($bukti_bayar)) { ?>
                                 <a href="../uploads/<?php echo htmlspecialchars($bukti_bayar); ?>" target="_blank" class="btn btn-secondary btn-sm" style="margin-top: 6px;">Lihat Bukti</a>
                             <?php } else { ?>
@@ -173,12 +172,12 @@ $detail = mysqli_query($koneksi, "
                 </div>
                 
                 <div class="card" style="margin-top: 20px;">
-                    <div class="card-header"><span class="material-symbols-outlined">play_circle</span> Aksi Pesanan</div>
+                    <div class="card-header"><span class="material-symbols-outlined">play_circle</span> Riwayat Pesanan</div>
                     <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
                         <?php if ($pesanan['status'] == 'menunggu_konfirmasi') { ?>
                         <form method="POST" action="proses/konfirmasi_pesanan.php">
                             <input type="hidden" name="pesanan_id" value="<?php echo $pesanan['id']; ?>">
-                            <button type="submit" class="btn btn-success btn-block"><span class="material-symbols-outlined">check_circle</span> Konfirmasi Pesanan</button>
+                            <button type="submit" class="btn btn-success btn-block"><span class="material-symbols-outlined">check_circle</span>  Pesanan Sesuai</button>
                         </form>
                         <form method="POST" action="proses/tolak_pesanan.php">
                             <input type="hidden" name="pesanan_id" value="<?php echo $pesanan['id']; ?>">

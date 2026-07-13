@@ -60,24 +60,32 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
+    <title>Keranjang Belanja</title>
     <link rel="stylesheet" href="../pembeli/Style.css">
 </head>
 <body>
 <!-- NAVBAR -->
 <div class="navbar">
-    <div class="navbar-brand">🛒 Checkout</div>
-    <div class="navbar-right">
-        <div class="navbar-links">
-            <a href="dashboard.php"><span class="material-symbols-outlined">home</span> Beranda</a>
-            <a href="keranjang.php">← Kembali</a>
+    <div class="navbar-brand">
+        <span class="brand-icon material-symbols-outlined">shopping_bag</span>
+        Toko Pupuk Online
+    </div>
+    <div class="navbar-actions">
+        <div class="navbar-user">
+            <span>Halo, <?php echo htmlspecialchars($_SESSION['nama']); ?></span>
         </div>
+        <a href="dashboard.php"><span class="material-symbols-outlined">home</span> Beranda</a>
+        <a href="keranjang.php" class="cart-badge"><span class="material-symbols-outlined">shopping_cart</span> Keranjang<span></a>
+        <a href="pesanan.php"><span class="material-symbols-outlined">receipt_long</span> Pesanan Saya</a>
+        <a href="../auth/logout.php"><span class="material-symbols-outlined">logout</span> Logout</a>
     </div>
     <details class="navbar-mobile">
         <summary><span>Menu</span><span class="material-symbols-outlined">menu</span></summary>
         <div class="mobile-actions">
             <a href="dashboard.php"><span class="material-symbols-outlined">home</span> Beranda</a>
-            <a href="keranjang.php">← Kembali</a>
+            <a href="keranjang.php"><span class="material-symbols-outlined">shopping_cart</span> Keranjang</a>
+            <a href="pesanan.php"><span class="material-symbols-outlined">receipt_long</span> Pesanan Saya</a>
+            <a href="../auth/logout.php"><span class="material-symbols-outlined">logout</span> Logout</a>
         </div>
     </details>
 </div>
@@ -196,7 +204,7 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id 
             <div class="card">
                 <div class="card-header">💰 Ringkasan Pembayaran</div>
                 <div style="padding: 20px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                    <div style=" justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
                         <span>Subtotal (<?php echo $total_items; ?> item)</span>
                         <strong><?php echo format_rupiah($total_harga); ?></strong>
                     </div>

@@ -32,7 +32,7 @@ $total_produk = mysqli_num_rows($produk);
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="sidebar-head">
-            <h3><span class="material-symbols-outlined icon">storefront</span> Toko Saya</h3>
+            <h3><span class="material-symbols-outlined icon">storefront</span> Halo</h3>
             <p><?php echo htmlspecialchars($toko['nama_toko']); ?></p>
         </div>
         <ul class="sidebar-menu">
@@ -52,7 +52,7 @@ $total_produk = mysqli_num_rows($produk);
     <div class="main-content">
         <!-- NAVBAR -->
         <div class="navbar">
-            <div class="navbar-brand"><span class="material-symbols-outlined">inventory_2</span> Produk Saya</div>
+            
             <div class="navbar-right">
                 <div class="navbar-user">
                     <div class="avatar">
@@ -75,7 +75,7 @@ $total_produk = mysqli_num_rows($produk);
         </div>
         
         <h1 class="page-title">Daftar Produk</h1>
-        <p class="page-subtitle">Relasi ONE-TO-MANY: 1 Penjual memiliki MANY Produk</p>
+        
         
         <?php if ($total_produk > 0) { ?>
         
