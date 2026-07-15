@@ -392,7 +392,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
     </div>
 
-    <div style="text-align:center; margin-top:20px; color:#5f7b61; font-size:13px;">© Petani Sejati (PTS_Jatim)</div>
+    <footer class="app-footer">© Petani Sejati (PTS_Jatim)</footer>
 
     <script>
         function togglePassword() {

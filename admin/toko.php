@@ -73,9 +73,17 @@ $total = mysqli_num_rows($toko);
 
         <p class="page-subtitle">Total: <?php echo $total; ?> toko terdaftar</p>
 
-        <div class="card">
-            <div style="overflow-x: auto;">
-                <table class="table">
+        <div class="card responsive-card" style="margin-bottom:16px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; padding-bottom:14px;">
+                <div><strong>Unduh Data Toko</strong><br><small style="color:#666;">Ekspor daftar toko dan penjual ke format yang Anda pilih.</small></div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="export.php?module=toko&format=pdf" class="btn btn-secondary btn-sm">PDF</a>
+                    <a href="export.php?module=toko&format=docx" class="btn btn-secondary btn-sm">Word</a>
+                    <a href="export.php?module=toko&format=xlsx" class="btn btn-secondary btn-sm">Excel</a>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="table mobile-table">
                     <thead>
                         <tr>
                             <th>Nama Toko</th>

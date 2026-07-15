@@ -132,7 +132,7 @@ $pesanan = mysqli_query($koneksi, "
 
 
         <div class="card" style="margin-bottom: 16px;">
-            <div class="grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+            <div class="grid stats-grid-mobile" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
                 <div class="badge" style="background:#f5f7ff; color:#333; border:1px solid #ddd; padding:12px; border-radius:10px;">
                     <div style="font-weight:800;">Statistik</div>
                     <div style="font-size:12px; color:#666; margin-top:6px;">Total Pesanan: <?php echo (int)$stats['total_pesanan']; ?></div>
@@ -160,9 +160,8 @@ $pesanan = mysqli_query($koneksi, "
 
         <div class="card" style="margin-bottom: 16px;">
             <div class="card-header">Produk Toko</div>
-                <div class="card-header">Produk Toko</div>
-            <div style="overflow-x:auto;">
-                <table class="table">
+            <div class="table-wrapper">
+                <table class="table mobile-table">
                     <thead>
                         <tr>
                             <th>Nama Produk</th>
@@ -193,8 +192,8 @@ $pesanan = mysqli_query($koneksi, "
 
         <div class="card">
             <div class="card-header">🧾 Pesanan untuk Toko Ini</div>
-            <div style="overflow-x:auto;">
-                <table class="table">
+            <div class="table-wrapper">
+                <table class="table mobile-table">
                     <thead>
                         <tr>
                             <th>Kode</th>

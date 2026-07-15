@@ -67,7 +67,7 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
         <h1 class="page-title">Tambah Produk Baru</h1>
         
         <div class="card" style="max-width: 600px; margin: 0 auto;">
-            <form method="POST" action="proses/tambah_produk.php" enctype="multipart/form-data">
+            <form method="POST" action="proses/tambah_produk.php" enctype="multipart/form-data" novalidate>
                 <div class="form-group">
                     <label for="jenis">Jenis Produk *</label>
                     <select id="jenis" name="jenis_produk_id" required>
@@ -81,7 +81,7 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
                 </div>
                 
                 <div class="form-group">
-                    <label for="harga_display">Harga Jual (Rp) *</label>
+                    <label for="harga_display">Harga Jual (Rp/<span id="harga_satuan_label">Unit</span>) *</label>
                     <input type="text" id="harga_display" inputmode="numeric" placeholder="Contoh: 500000" required>
                     <input type="hidden" id="harga_jual" name="harga_jual" value="">
                     <small id="harga_preview" style="color:#666;">Isi nominal tanpa tanda titik atau koma.</small>
@@ -125,6 +125,7 @@ const stokHelp = document.getElementById('stok_help');
 const hargaDisplay = document.getElementById('harga_display');
 const hargaHidden = document.getElementById('harga_jual');
 const hargaPreview = document.getElementById('harga_preview');
+const hargaSatuanLabel = document.getElementById('harga_satuan_label');
 
 function formatRupiah(value) {
     const digits = String(value).replace(/\D/g, '');
@@ -139,8 +140,14 @@ if (jenisSelect) {
         const satuan = selected?.getAttribute('data-satuan') || '';
         if (satuan) {
             stokHelp.textContent = 'Satuan yang dipakai: ' + satuan.toUpperCase();
+            if (hargaSatuanLabel) {
+                hargaSatuanLabel.textContent = satuan.toUpperCase();
+            }
         } else {
             stokHelp.textContent = 'Satuan mengikuti jenis produk yang dipilih (kg/liter).';
+            if (hargaSatuanLabel) {
+                hargaSatuanLabel.textContent = 'Unit';
+            }
         }
     });
 }
@@ -157,9 +164,25 @@ if (hargaDisplay) {
 const form = document.querySelector('form');
 if (form) {
     form.addEventListener('submit', function (event) {
-        if (!hargaHidden.value) {
+        const jenisValue = jenisSelect?.value || '';
+        const stokValue = document.getElementById('stok')?.value?.trim() || '';
+        const hargaValue = hargaHidden.value?.trim() || '';
+
+        if (!jenisValue) {
             event.preventDefault();
-            alert('Harga jual wajib diisi.');
+            alert('Silakan pilih jenis produk terlebih dahulu.');
+            return;
+        }
+
+        if (!hargaValue) {
+            event.preventDefault();
+            alert('Harga jual tidak boleh kosong.');
+            return;
+        }
+
+        if (!stokValue || Number(stokValue) < 0) {
+            event.preventDefault();
+            alert('Jumlah stok wajib diisi dengan angka yang valid.');
         }
     });
 }

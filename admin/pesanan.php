@@ -135,9 +135,20 @@ $cnt_dibatalkan = count_by_status('dibatalkan', $koneksi);
             </a>
         </div>
 
+        <div class="card" style="margin-bottom:16px; padding:16px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+                <div><strong>Unduh Data Pesanan</strong><br><small style="color:#666;">Ekspor seluruh data pesanan dalam format PDF, Word, atau Excel.</small></div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="export.php?module=pesanan&format=pdf" class="btn btn-secondary btn-sm">PDF</a>
+                    <a href="export.php?module=pesanan&format=docx" class="btn btn-secondary btn-sm">Word</a>
+                    <a href="export.php?module=pesanan&format=xlsx" class="btn btn-secondary btn-sm">Excel</a>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
-            <div style="overflow-x: auto;">
-                <table class="table">
+            <div class="table-wrapper">
+                <table class="table mobile-table">
                     <thead>
                         <tr>
                             <th>No</th>

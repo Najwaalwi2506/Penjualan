@@ -364,9 +364,11 @@ body.sidebar-open {
 .stat-box.orange { border-top: 4px solid #f59e0b; }
 .stat-box.red { border-top: 4px solid #ef4444; }
 
-.table-responsive {
+.table-responsive,
+.table-wrapper {
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     border-radius: 20px;
 }
 
@@ -375,6 +377,11 @@ body.sidebar-open {
     min-width: 720px;
     border-collapse: collapse;
     background: #ffffff;
+}
+
+.mobile-table {
+    width: 100%;
+    min-width: 720px;
 }
 
 .table th,
@@ -679,8 +686,26 @@ label {
         font-size: 1.5rem;
     }
 
-    .table {
+    .card {
+        padding: 1rem;
+    }
+
+    .table-wrapper {
+        margin: 0 -0.25rem;
+    }
+
+    .table,
+    .mobile-table {
         min-width: 620px;
+    }
+
+    .table-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .table-actions .btn {
+        width: 100%;
     }
 }
 ''; Path('css/style.css').write_text(css, encoding='utf-8'); js = '''document.addEventListener('DOMContentLoaded', function () {

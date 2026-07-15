@@ -114,15 +114,18 @@ $produk_nav = mysqli_query($koneksi, "
 }
 ?>
 
-<div style="margin: 0 0 16px 0; display:flex; justify-content:flex-end;">
+<div style="margin: 0 0 16px 0; display:flex; justify-content:flex-end; flex-wrap:wrap; gap:10px;">
     <a class="btn btn-primary" href="users_tambah.php">Tambah User</a>
+    <a href="export.php?module=users&format=pdf" class="btn btn-secondary btn-sm">Unduh PDF</a>
+    <a href="export.php?module=users&format=docx" class="btn btn-secondary btn-sm">Unduh Word</a>
+    <a href="export.php?module=users&format=xlsx" class="btn btn-secondary btn-sm">Unduh Excel</a>
 </div>
       
 
 
         <div class="card">
-            <div style="overflow-x: auto;">
-                <table class="table">
+            <div class="table-wrapper">
+                <table class="table mobile-table">
                     <thead>
                         <tr>
                             <th>Nama</th>

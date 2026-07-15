@@ -10,6 +10,7 @@ $daerah = isset($_GET['daerah']) ? trim($_GET['daerah']) : '';
 $kategori_id = isset($_GET['kategori']) ? (int)$_GET['kategori'] : 0;
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'terbaru';
 $sort = in_array($sort, ['terbaru', 'termurah', 'termahal'], true) ? $sort : 'terbaru';
+$daerah_options = [];
 
 // Jika nama_barang dipilih, pastikan kategori_id konsisten dengan kategori jenis produk itu
 // supaya tidak terjadi kombinasi kategori + nama barang yang saling bertentangan
@@ -39,6 +40,45 @@ while ($option = mysqli_fetch_assoc($nama_barang_options_result)) {
     ];
 }
 
+$daerah_map = [];
+$daerah_query = "
+    SELECT DISTINCT j.id AS jenis_id, j.kategori_id, u.alamat
+    FROM produk p
+    JOIN jenis_produk j ON p.jenis_produk_id = j.id
+    JOIN toko t ON p.toko_id = t.id
+    JOIN users u ON t.user_id = u.id
+    WHERE p.is_tersedia = 1 AND u.is_active = 1
+";
+$daerah_result = mysqli_query($koneksi, $daerah_query);
+while ($daerah_row = mysqli_fetch_assoc($daerah_result)) {
+    $lokasi = get_general_location($daerah_row['alamat']);
+    if ($lokasi === '') {
+        continue;
+    }
+
+    $tipe = (int)$daerah_row['jenis_id'];
+    $kategori = (int)$daerah_row['kategori_id'];
+    $daerah_map['produk'][$tipe][] = $lokasi;
+    $daerah_map['kategori'][$kategori][] = $lokasi;
+}
+
+$available_daerah = [];
+foreach ($daerah_map['produk'] as $key => $items) {
+    foreach ($items as $item) {
+        $available_daerah[$key][] = $item;
+    }
+}
+foreach ($daerah_map['kategori'] as $key => $items) {
+    foreach ($items as $item) {
+        $available_daerah[$key][] = $item;
+    }
+}
+
+foreach ($available_daerah as &$daerah_list) {
+    $daerah_list = array_values(array_unique($daerah_list));
+}
+unset($daerah_list);
+
 // Ambil produk sesuai pencarian, filter kategori, dan urutan harga
 $query = "
     SELECT p.*, j.nama_jenis, j.satuan, t.nama_toko, k.nama as nama_kategori, u.nama as penjual_nama, u.alamat
@@ -57,6 +97,29 @@ if ($daerah !== '') {
     $keyword_daerah = mysqli_real_escape_string($koneksi, $daerah);
     $query .= " AND (u.alamat LIKE '%$keyword_daerah%' OR t.nama_toko LIKE '%$keyword_daerah%' OR u.nama LIKE '%$keyword_daerah%')";
 }
+
+$daerah_options_query = "
+    SELECT DISTINCT u.alamat
+    FROM produk p
+    JOIN jenis_produk j ON p.jenis_produk_id = j.id
+    JOIN toko t ON p.toko_id = t.id
+    JOIN users u ON t.user_id = u.id
+    WHERE p.is_tersedia = 1 AND u.is_active = 1";
+if ($nama_barang_id > 0) {
+    $daerah_options_query .= " AND j.id = $nama_barang_id";
+}
+if ($kategori_id > 0) {
+    $daerah_options_query .= " AND j.kategori_id = $kategori_id";
+}
+$daerah_options_result = mysqli_query($koneksi, $daerah_options_query);
+while ($daerah_option = mysqli_fetch_assoc($daerah_options_result)) {
+    $lokasi = get_general_location($daerah_option['alamat']);
+    if ($lokasi !== '') {
+        $daerah_options[] = $lokasi;
+    }
+}
+$daerah_options = array_values(array_unique($daerah_options));
+sort($daerah_options);
 
 if ($kategori_id > 0) {
     $query .= " AND j.kategori_id = $kategori_id";
@@ -189,7 +252,12 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
             </div>
             <div class="form-group">
                 <label for="daerah"><span class="step-number">3</span> Daerah</label>
-                <input type="text" id="daerah" name="daerah" placeholder="Contoh: Surabaya" value="<?php echo htmlspecialchars($daerah); ?>">
+                <select id="daerah" name="daerah">
+                    <option value="">Semua Daerah</option>
+                    <?php foreach ($daerah_options as $lokasi): ?>
+                        <option value="<?php echo htmlspecialchars($lokasi); ?>" <?php echo $daerah === $lokasi ? 'selected' : ''; ?>><?php echo htmlspecialchars($lokasi); ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
             <div class="form-group">
                 <label for="sort"><span class="step-number">4</span> Urutkan Harga</label>
@@ -231,7 +299,7 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
             <div class="product-body">
                 <div class="product-title"><?php echo htmlspecialchars($row['nama_jenis']); ?></div>
                 <div class="product-store"><?php echo htmlspecialchars($row['nama_toko']); ?></div>
-                <div class="product-location">Lokasi: <?php echo htmlspecialchars($row['alamat']); ?></div>
+                <div class="product-location">Lokasi: <?php echo htmlspecialchars(get_general_location($row['alamat'])); ?></div>
                 <div class="product-price"><?php echo format_rupiah($row['harga_jual']); ?>/<?php echo htmlspecialchars($row['satuan']); ?></div>
                 <form method="POST" action="../proses/add_keranjang.php" class="product-actions">
                     <input type="hidden" name="produk_id" value="<?php echo $row['id']; ?>">
@@ -252,7 +320,51 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
 <script>
 const categorySelect = document.getElementById('kategori');
 const namaBarangSelect = document.getElementById('nama_barang');
+const daerahSelect = document.getElementById('daerah');
 const namaBarangOptions = <?php echo json_encode($nama_barang_options, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+const daerahByProduct = <?php echo json_encode($daerah_map['produk'] ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+const daerahByCategory = <?php echo json_encode($daerah_map['kategori'] ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+
+function renderDaerahOptions(selectedCategoryId, selectedProductId) {
+    if (!daerahSelect) return;
+
+    const currentValue = daerahSelect.value;
+    const availableOptions = [];
+
+    if (selectedProductId) {
+        (daerahByProduct[selectedProductId] || []).forEach(function (item) {
+            availableOptions.push(item);
+        });
+    } else if (selectedCategoryId) {
+        (daerahByCategory[selectedCategoryId] || []).forEach(function (item) {
+            availableOptions.push(item);
+        });
+    } else {
+        Object.keys(daerahByCategory).forEach(function (key) {
+            (daerahByCategory[key] || []).forEach(function (item) {
+                availableOptions.push(item);
+            });
+        });
+    }
+
+    const uniqueOptions = Array.from(new Set(availableOptions)).sort();
+    const validCurrentValue = uniqueOptions.includes(currentValue) ? currentValue : '';
+
+    daerahSelect.innerHTML = '<option value="">Semua Daerah</option>';
+    uniqueOptions.forEach(function (item) {
+        const option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        if (validCurrentValue === item) {
+            option.selected = true;
+        }
+        daerahSelect.appendChild(option);
+    });
+
+    if (validCurrentValue !== currentValue) {
+        daerahSelect.value = '';
+    }
+}
 
 function renderNamaBarangOptions(selectedCategoryId) {
     if (!namaBarangSelect) return;
@@ -260,27 +372,40 @@ function renderNamaBarangOptions(selectedCategoryId) {
     const currentValue = namaBarangSelect.value;
     namaBarangSelect.innerHTML = '<option value="">Semua Nama Barang</option>';
 
-    namaBarangOptions
-        .filter(function (option) {
-            return !selectedCategoryId || String(option.kategori_id) === String(selectedCategoryId);
-        })
-        .forEach(function (option) {
-            const opt = document.createElement('option');
-            opt.value = option.id;
-            opt.textContent = option.nama;
-            if (String(currentValue) === String(option.id)) {
-                opt.selected = true;
-            }
-            namaBarangSelect.appendChild(opt);
-        });
+    const filteredOptions = namaBarangOptions.filter(function (option) {
+        return !selectedCategoryId || String(option.kategori_id) === String(selectedCategoryId);
+    });
+
+    let selectedProductId = '';
+    filteredOptions.forEach(function (option) {
+        const opt = document.createElement('option');
+        opt.value = option.id;
+        opt.textContent = option.nama;
+        if (String(currentValue) === String(option.id)) {
+            opt.selected = true;
+            selectedProductId = String(option.id);
+        }
+        namaBarangSelect.appendChild(opt);
+    });
+
+    if (!selectedProductId && currentValue) {
+        namaBarangSelect.value = '';
+    }
 }
 
 if (categorySelect && namaBarangSelect) {
     categorySelect.addEventListener('change', function () {
+        namaBarangSelect.value = '';
         renderNamaBarangOptions(this.value);
+        renderDaerahOptions(this.value, '');
+    });
+
+    namaBarangSelect.addEventListener('change', function () {
+        renderDaerahOptions(categorySelect.value, this.value);
     });
 
     renderNamaBarangOptions(categorySelect.value);
+    renderDaerahOptions(categorySelect.value, namaBarangSelect.value);
 }
 </script>
 </body>

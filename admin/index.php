@@ -131,9 +131,9 @@ if (!empty($selected_month)) {
                 <span><strong>Total Bulan Ini:</strong> <?php echo format_rupiah($monthly_penjualan); ?></span>
             </div>
             <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
-                <a href="export_laporan.php?format=pdf" class="btn btn-secondary btn-sm">Unduh Laporan PDF</a>
-                <a href="export_laporan.php?format=csv" class="btn btn-secondary btn-sm">Unduh Laporan Excel</a>
-                <a href="export_pesanan.php?format=csv" class="btn btn-secondary btn-sm">Unduh Data Pesanan</a>
+                <a href="export.php?module=penjualan&format=pdf" class="btn btn-secondary btn-sm">Unduh Laporan PDF</a>
+                <a href="export.php?module=penjualan&format=xlsx" class="btn btn-secondary btn-sm">Unduh Laporan Excel</a>
+                <a href="export.php?module=pesanan&format=csv" class="btn btn-secondary btn-sm">Unduh Data Pesanan</a>
             </div>
         </div>
         

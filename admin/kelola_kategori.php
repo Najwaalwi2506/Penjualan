@@ -75,14 +75,25 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as kategori,
 
         
 
+        <div class="card" style="margin: 20px 0; padding:16px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+                <div><strong>Unduh Data Produk</strong><br><small style="color:#666;">Ekspor data produk dan kategori untuk laporan administrasi.</small></div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="export.php?module=produk&format=pdf" class="btn btn-secondary btn-sm">PDF</a>
+                    <a href="export.php?module=produk&format=docx" class="btn btn-secondary btn-sm">Word</a>
+                    <a href="export.php?module=produk&format=xlsx" class="btn btn-secondary btn-sm">Excel</a>
+                </div>
+            </div>
+        </div>
+
         <!-- TABEL KATEGORI -->
         <h2 style="margin: 30px 0 20px 0; color: #333;">
             Kategori Produk
         </h2>
 
         <div class="card">
-            <div style="overflow-x:auto;">
-                <table class="table">
+            <div class="table-wrapper">
+                <table class="table mobile-table">
                     <thead>
                         <tr>
                             <th>No</th>

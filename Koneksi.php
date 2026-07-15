@@ -3,7 +3,7 @@ session_start();
 $host = "localhost";
 $user = "root";
 $password = "";
-$database = "pupuk_pts_jatim";
+$database = "pupuk_pts_jatim(1)";
 
 $koneksi = mysqli_connect($host, $user, $password, $database);
 
@@ -45,6 +45,26 @@ function format_number_input($value) {
 
 function format_stock($value) {
     return format_number_input($value);
+}
+
+function get_general_location($address) {
+    if (empty($address)) {
+        return '';
+    }
+
+    $clean = trim(preg_replace('/\s+/', ' ', (string)$address));
+    if ($clean === '') {
+        return '';
+    }
+
+    if (preg_match('/\b(?:Kabupaten|Kota)\s+[A-Za-z\s\-]+/i', $clean, $match)) {
+        return ucwords(strtolower(trim($match[0])));
+    }
+
+    $parts = array_map('trim', explode(',', $clean));
+    $first = $parts[0] ?? '';
+
+    return $first;
 }
 
 function get_app_setting($koneksi, $key, $default = null) {

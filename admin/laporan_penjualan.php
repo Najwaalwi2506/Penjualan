@@ -90,6 +90,17 @@ $penjualan_toko = mysqli_query($koneksi, "
             </div>
         </div>
         
+        <div class="card" style="margin-bottom:20px; padding:16px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+                <div><strong>Unduh Laporan</strong><br><small style="color:#666;">Ekspor data penjualan, toko, produk, dan pengguna dalam format yang diinginkan.</small></div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="export.php?module=penjualan&format=pdf" class="btn btn-secondary btn-sm">PDF</a>
+                    <a href="export.php?module=penjualan&format=docx" class="btn btn-secondary btn-sm">Word</a>
+                    <a href="export.php?module=penjualan&format=xlsx" class="btn btn-secondary btn-sm">Excel</a>
+                </div>
+            </div>
+        </div>
+
         <!-- PENJUALAN PER TOKO -->
         <h2 style="margin: 30px 0 20px 0; color: #333;">Penjualan Per Toko</h2>
         <div class="card">

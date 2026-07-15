@@ -1489,6 +1489,29 @@ label {
     }
 }
 
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-table {
+    min-width: 0;
+}
+
+@media (max-width: 640px) {
+    .product-card,
+    .product-body,
+    .product-actions,
+    .search-form,
+    .search-card,
+    .product-title,
+    .product-location {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
 /* CUSTOM FILE UPLOAD (biar nama file tidak overflow ke samping) */
 .file-upload-group {
     display: flex;

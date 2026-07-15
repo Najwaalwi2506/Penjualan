@@ -87,7 +87,7 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
         <h1 class="page-title">Edit Produk: <?php echo htmlspecialchars($produk['nama_jenis']); ?></h1>
         
         <div class="card" style="max-width: 600px; margin: 0 auto;">
-            <form method="POST" action="proses/edit_produk.php" enctype="multipart/form-data">
+            <form method="POST" action="proses/edit_produk.php" enctype="multipart/form-data" novalidate>
                 <input type="hidden" name="produk_id" value="<?php echo $produk_id; ?>">
                 
                 <div class="form-group">
@@ -187,9 +187,25 @@ if (hargaDisplay) {
 const form = document.querySelector('form');
 if (form) {
     form.addEventListener('submit', function (event) {
-        if (!hargaHidden.value) {
+        const jenisValue = jenisSelect?.value || '';
+        const stokValue = document.getElementById('stok')?.value?.trim() || '';
+        const hargaValue = hargaHidden.value?.trim() || '';
+
+        if (!jenisValue) {
             event.preventDefault();
-            alert('Harga jual wajib diisi.');
+            alert('Silakan pilih jenis produk terlebih dahulu.');
+            return;
+        }
+
+        if (!hargaValue) {
+            event.preventDefault();
+            alert('Harga jual tidak boleh kosong.');
+            return;
+        }
+
+        if (!stokValue || Number(stokValue) < 0) {
+            event.preventDefault();
+            alert('Jumlah stok wajib diisi dengan angka yang valid.');
         }
     });
 }
