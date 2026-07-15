@@ -332,8 +332,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                 </div>
             </div>
 
-            <h2>Masuk ke akun Anda</h2>
-            <p class="sub-heading">Selamat datang kembali, silakan isi data login.</p>
+            <h2>Solusi Belanja dan Jualan Pupuk dan Bahan Baku yang Lebih Praktis.</h2>
+            <p class="sub-heading">Cara login mudah: masukkan email dan password yang sudah terdaftar. Setelah masuk, pengguna Pembeli bisa memilih produk dan checkout, sedangkan pengguna Penjual bisa mengelola stok serta pesanan dari halaman dashboard masing-masing.</p>
 
             <?php if ($error): ?>
                 <div class="alert">⚠ <?php echo htmlspecialchars($error); ?></div>
@@ -376,10 +376,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         <div class="panel-info">
             <div class="info-badge">Anggota Rumah Pupuk</div>
             <h1 class="info-headline">
-                Solusi belanja dan jualan pupuk yang lebih praktis
+                Solusi belanja dan jualan pupuk dan bahan baku yang lebih praktis
             </h1>
             <p class="info-desc">
-                Platform sederhana untuk mengelola produk, memantau pesanan, dan berbelanja pupuk organik dengan lebih cepat dan terarah.
+                Platform sederhana untuk mengelola produk, memantau pesanan, dan berbelanja pupuk organik dengan lebih cepat, aman, dan mudah dipahami.
             </p>
             <hr class="divider">
             <p class="fitur-label">Yang bisa Anda lakukan</p>
@@ -391,6 +391,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         </div>
 
     </div>
+
+    <div style="text-align:center; margin-top:20px; color:#5f7b61; font-size:13px;">© Petani Sejati (PTS_Jatim)</div>
 
     <script>
         function togglePassword() {

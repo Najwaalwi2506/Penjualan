@@ -95,7 +95,7 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id 
     
     <?php if ($total_items > 0) { ?>
     
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+    <div class="checkout-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
         <!-- ITEM PESANAN -->
         <div>
             <div class="card">
@@ -116,7 +116,7 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id 
                     <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
                         <div style="flex: 1;">
                             <strong><?php echo $item['nama_jenis']; ?></strong><br>
-                            <small><?php echo $item['jumlah']; ?> x <?php echo format_rupiah($item['harga_jual']); ?></small>
+                            <small>Jumlah <?php echo $item['jumlah']; ?> <?php echo htmlspecialchars(strtoupper($item['satuan'] ?? 'unit')); ?> x <?php echo format_rupiah($item['harga_jual']); ?></small>
                         </div>
                         <div style="text-align: right; font-weight: bold;">
                             <?php echo format_rupiah($subtotal); ?>
@@ -158,7 +158,8 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id 
                             <?php } ?>
                             <div style="margin-top: 12px;">
                                 <label style="display:block; margin-bottom:6px;">Bukti Pembayaran <?php echo htmlspecialchars($rek['nama_toko']); ?> *</label>
-                                <input type="file" name="bukti_pembayaran_toko[<?php echo (int)$rekening_toko_id; ?>]" form="checkoutForm" accept="image/*,.pdf" required style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
+                                <input type="file" name="bukti_pembayaran_toko[<?php echo (int)$rekening_toko_id; ?>]" form="checkoutForm" accept=".jpg,.jpeg,.png,.pdf" required style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
+                                <small style="color:#666; display:block; margin-top:6px;">Format yang diperbolehkan: JPG, JPEG, PNG, PDF. Maksimal ukuran file 2 MB per upload.</small>
                             </div>
                         </div>
                     <?php } ?>

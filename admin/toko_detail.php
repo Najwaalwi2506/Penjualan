@@ -120,7 +120,6 @@ $pesanan = mysqli_query($koneksi, "
         </div>
 
         <h1 class="page-title">Detail Toko: <?php echo htmlspecialchars($toko['nama_toko'] ?? ''); ?></h1>
-            <h1 class="page-title">Detail Toko: <?php echo htmlspecialchars($toko['nama_toko'] ?? ''); ?></h1>
         <p class="page-subtitle">
             Penjual: <?php echo htmlspecialchars($toko['penjual_nama'] ?? ''); ?> • <?php echo htmlspecialchars($toko['penjual_email'] ?? ''); ?>
             <?php if (!empty($toko['penjual_alamat'])) { ?>

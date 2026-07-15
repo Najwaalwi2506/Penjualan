@@ -5,6 +5,8 @@ check_role(['admin']);
 
 $kategori = mysqli_query($koneksi, "SELECT * FROM kategori_produk");
 $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as kategori,
+                                 COALESCE(SUM(dp.jumlah),0) AS jumlah_barang_terjual,
+                                 COALESCE(SUM(dp.subtotal),0) AS total_nilai_penjualan,
                                  COUNT(DISTINCT pe.pembeli_id) AS terjual_orang
                                  FROM jenis_produk j 
                                  JOIN kategori_produk k ON j.kategori_id = k.id 
@@ -128,7 +130,8 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as kategori,
                             <th>Nama Jenis</th>
                             <th>Kategori</th>
                             <th>Satuan</th>
-                            <th>Jumlah Penjual</th>
+                            <th>Jumlah Barang Terjual</th>
+                            <th>Total Nilai Penjualan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -149,7 +152,8 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as kategori,
                                 <td><?php echo htmlspecialchars($row['nama_jenis']); ?></td>
                                 <td><?php echo htmlspecialchars($row['kategori']); ?></td>
                                 <td><?php echo htmlspecialchars(ucfirst($row['satuan'] ?? '')); ?></td>
-                                <td><?php echo htmlspecialchars($row['terjual_orang'] ?? 0); ?></td>
+                                <td><?php echo htmlspecialchars((int)($row['jumlah_barang_terjual'] ?? 0)); ?></td>
+                                <td><?php echo htmlspecialchars(format_rupiah((float)($row['total_nilai_penjualan'] ?? 0))); ?></td>
                             </tr>
                     <?php
                         }

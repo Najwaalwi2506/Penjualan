@@ -8,6 +8,23 @@ $total_toko = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as coun
 $total_pesanan = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as count FROM pesanan"))['count'];
 $total_penjualan = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT SUM(grand_total) as total FROM pesanan WHERE status != 'dibatalkan'"))['total'];
 $pesanan_menunggu_penjual = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as count FROM pesanan WHERE status = 'menunggu_konfirmasi'"))['count'];
+
+$selected_month = isset($_GET['bulan']) ? trim($_GET['bulan']) : '';
+$available_months = [];
+$month_result = mysqli_query($koneksi, "SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') AS bulan FROM pesanan WHERE created_at IS NOT NULL AND DATE_FORMAT(created_at, '%Y-%m') <= DATE_FORMAT(CURDATE(), '%Y-%m') ORDER BY bulan DESC");
+while ($month_row = mysqli_fetch_assoc($month_result)) {
+    $available_months[] = $month_row['bulan'];
+}
+if (empty($selected_month) && !empty($available_months)) {
+    $selected_month = $available_months[0];
+}
+$monthly_penjualan = 0;
+$monthly_pesanan = 0;
+if (!empty($selected_month)) {
+    $monthly_stats = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COALESCE(SUM(grand_total),0) AS total_penjualan, COUNT(*) AS total_pesanan FROM pesanan WHERE status != 'dibatalkan' AND DATE_FORMAT(created_at, '%Y-%m') = '$selected_month'"));
+    $monthly_penjualan = (float)$monthly_stats['total_penjualan'];
+    $monthly_pesanan = (int)$monthly_stats['total_pesanan'];
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -69,32 +86,54 @@ $pesanan_menunggu_penjual = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT CO
         
         <!-- STATISTIK CARDS -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-            <!-- Total Users -->
             <div class="card" style="background: linear-gradient(135deg, #16a34a 0%, #059669 100%); color: white; padding: 20px; text-align: center;">
-                    <div style="font-size: 32px; margin-bottom: 10px;"><span class="material-symbols-outlined" style="font-size:32px;">people</span></div>
+                <div style="font-size: 32px; margin-bottom: 10px;"><span class="material-symbols-outlined" style="font-size:32px;">people</span></div>
                 <div style="font-size: 28px; font-weight: bold;"><?php echo $total_users; ?></div>
                 <div style="font-size: 12px; margin-top: 5px;">Total User</div>
             </div>
             
-            <!-- Total Toko -->
             <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; text-align: center;">
                 <div style="font-size: 32px; margin-bottom: 10px;"><span class="material-symbols-outlined" style="font-size:32px;">store</span></div>
                 <div style="font-size: 28px; font-weight: bold;"><?php echo $total_toko; ?></div>
                 <div style="font-size: 12px; margin-top: 5px;">Total Toko</div>
             </div>
             
-            <!-- Total Pesanan -->
             <div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; text-align: center;">
                 <div style="font-size: 32px; margin-bottom: 10px;"><span class="material-symbols-outlined" style="font-size:32px;">inventory_2</span></div>
                 <div style="font-size: 28px; font-weight: bold;"><?php echo $total_pesanan; ?></div>
                 <div style="font-size: 12px; margin-top: 5px;">Total Pesanan</div>
             </div>
             
-            <!-- Total Penjualan -->
             <div class="card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; text-align: center;">
                 <div style="font-size: 32px; margin-bottom: 10px;"><span class="material-symbols-outlined" style="font-size:32px;">paid</span></div>
-                <div style="font-size: 20px; font-weight: bold;"><?php echo format_rupiah($total_penjualan); ?></div>
-                <div style="font-size: 12px; margin-top: 5px;">Total Penjualan</div>
+                <div style="font-size: 20px; font-weight: bold;"><?php echo format_rupiah($monthly_penjualan ?: $total_penjualan); ?></div>
+                <div style="font-size: 12px; margin-top: 5px;">Rekap Penjualan Bulanan</div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px; padding: 18px;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+                <div>
+                    <strong>Filter Bulan</strong><br>
+                    <small style="color:#666;">Pilih bulan yang ingin ditampilkan. Bulan yang belum berjalan tidak akan ditampilkan.</small>
+                </div>
+                <form method="GET" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <select name="bulan" class="form-control" style="min-width:220px;">
+                        <?php foreach ($available_months as $month) { ?>
+                            <option value="<?php echo htmlspecialchars($month); ?>" <?php echo $selected_month === $month ? 'selected' : ''; ?>><?php echo htmlspecialchars(date('F Y', strtotime($month . '-01'))); ?></option>
+                        <?php } ?>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
+                </form>
+            </div>
+            <div style="margin-top:14px; display:flex; gap:18px; flex-wrap:wrap; font-size:14px; color:#475569;">
+                <span><strong>Jumlah Pesanan:</strong> <?php echo $monthly_pesanan; ?></span>
+                <span><strong>Total Bulan Ini:</strong> <?php echo format_rupiah($monthly_penjualan); ?></span>
+            </div>
+            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+                <a href="export_laporan.php?format=pdf" class="btn btn-secondary btn-sm">Unduh Laporan PDF</a>
+                <a href="export_laporan.php?format=csv" class="btn btn-secondary btn-sm">Unduh Laporan Excel</a>
+                <a href="export_pesanan.php?format=csv" class="btn btn-secondary btn-sm">Unduh Data Pesanan</a>
             </div>
         </div>
         
@@ -114,7 +153,7 @@ $pesanan_menunggu_penjual = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT CO
         <!-- QUICK LINKS -->
         <h2 style="margin: 30px 0 20px 0; color: #333;">Akses Cepat</h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-            <div class="card" style="padding: 20px; cursor: pointer; transition: 0.3s;" onclick="window.location='kelola_user.php'">
+            <div class="card" style="padding: 20px; cursor: pointer; transition: 0.3s;" onclick="window.location='users.php'">
                 <div style="font-size: 28px; margin-bottom: 10px;"><span class="material-symbols-outlined" style="font-size:28px;">people</span></div>
                 <strong>Kelola User</strong><br>
                 <small style="color: #999;">Tambah, edit, atau hapus user</small>
@@ -126,7 +165,7 @@ $pesanan_menunggu_penjual = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT CO
                 <small style="color: #999;">Kelola toko dan informasinya</small>
             </div>
             
-            <div class="card" style="padding: 20px; cursor: pointer; transition: 0.3s;" onclick="window.location='kelola_pesanan.php'">
+            <div class="card" style="padding: 20px; cursor: pointer; transition: 0.3s;" onclick="window.location='pesanan.php'">
                 <div style="font-size: 28px; margin-bottom: 10px;"><span class="material-symbols-outlined" style="font-size:28px;">inventory_2</span></div>
                 <strong>Data Pesanan</strong><br>
                 <small style="color: #999;">Pantau pembeli, toko, dan status pesanan</small>

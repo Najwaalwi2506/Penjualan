@@ -119,7 +119,7 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
             <div>
                 <span class="hero-tag"><span class="material-symbols-outlined">rocket_launch</span> Belanja Mudah</span>
                 <h1 class="hero-headline">Pupuk Berkualitas Hasil Panen Optimal</h1>
-                <p class="hero-text">Temukan pupuk terbaik untuk kebutuhan pertanian Anda dengan harga terjangkau, kualitas terjamin, dan pengiriman cepat ke lahan.</p>
+                <p class="hero-text">Sistem Informasi Pupuk Organik dan Bahan Baku dengan harga yang terjangkau.</p>
                 <a href="#produk" class="btn btn-primary hero-cta">Belanja Sekarang</a>
             </div>
             <div class="hero-visual">

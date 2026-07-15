@@ -105,10 +105,10 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
                 </div>
                 
                 <div class="form-group">
-                    <label for="harga_display">Harga Jual (Rp) *</label>
+                    <label for="harga_display">Harga Jual (Rp/<?php echo htmlspecialchars(strtoupper($produk['satuan'] ?? 'unit')); ?>) *</label>
                     <input type="text" id="harga_display" inputmode="numeric" placeholder="Contoh: 500000" value="<?php echo number_format($produk['harga_jual'], 0, '', '.'); ?>" required>
                     <input type="hidden" id="harga_jual" name="harga_jual" value="<?php echo $produk['harga_jual']; ?>">
-                    <small id="harga_preview" style="color:#666;">Preview: Rp <?php echo number_format($produk['harga_jual'], 0, '', '.'); ?></small>
+                    <small id="harga_preview" style="color:#666;">Preview: Rp <?php echo number_format($produk['harga_jual'], 0, '', '.'); ?> per <?php echo htmlspecialchars(strtoupper($produk['satuan'] ?? 'unit')); ?></small>
                 </div>
                 
                 <div class="form-group">

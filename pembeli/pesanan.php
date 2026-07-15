@@ -55,37 +55,29 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
 
 <div class="main-content page-shell" style="max-width: 1000px; margin: 0 auto;">
     <h1 class="page-title">📋 Riwayat Pesanan Anda</h1>
-    <p class="page-subtitle">Relasi ONE-TO-MANY: 1 Pembeli memiliki MANY Pesanan</p>
+    <p class="page-subtitle">Lihat status pesanan Anda dengan tampilan yang sederhana dan mudah dipahami.</p>
     
     <?php if ($total_pesanan > 0) { ?>
     
-    <div class="card">
-        <div style="overflow-x: auto;">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>No Pesanan</th>
-                        <th>Penjual</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Tanggal</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($row = mysqli_fetch_assoc($pesanan)) { ?>
-                    <tr>
-                        <td><strong><?php echo $row['kode_pesanan']; ?></strong></td>
-                        <td><?php echo $row['nama_toko']; ?></td>
-                        <td><?php echo format_rupiah($row['grand_total']); ?></td>
-                        <td><span class="badge badge-<?php echo $row['status']; ?>"><?php echo ucfirst(str_replace('_', ' ', $row['status'])); ?></span></td>
-                        <td><?php echo date('d/m/Y H:i', strtotime($row['created_at'])); ?></td>
-                        <td><a href="pesanan_detail.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm">Lihat</a></td>
-                    </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
+    <div class="history-list">
+        <?php while ($row = mysqli_fetch_assoc($pesanan)) { ?>
+        <div class="history-card">
+            <div class="history-card-top">
+                <div>
+                    <div class="history-code"><strong><?php echo htmlspecialchars($row['kode_pesanan']); ?></strong></div>
+                    <div class="history-store"><?php echo htmlspecialchars($row['nama_toko']); ?></div>
+                </div>
+                <span class="badge badge-<?php echo $row['status']; ?>"><?php echo ucfirst(str_replace('_', ' ', $row['status'])); ?></span>
+            </div>
+            <div class="history-meta">
+                <span>🗓 <?php echo date('d/m/Y H:i', strtotime($row['created_at'])); ?></span>
+                <span>💰 <?php echo format_rupiah($row['grand_total']); ?></span>
+            </div>
+            <div class="history-actions">
+                <a href="pesanan_detail.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm">Lihat Detail</a>
+            </div>
         </div>
+        <?php } ?>
     </div>
     
     <?php } else { ?>

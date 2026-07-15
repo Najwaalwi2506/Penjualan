@@ -1420,14 +1420,72 @@ label {
 
 .checkout-col-main,
 .checkout-col-side {
-    min-width: 0; /* mencegah grid "meledak" melebihi lebar layar karena konten (nomor rekening, nama file, dll) */
+    min-width: 0;
     width: 100%;
     box-sizing: border-box;
 }
 
+.checkout-layout {
+    width: 100%;
+    max-width: 100%;
+}
+
 @media (max-width: 768px) {
-    .checkout-grid {
-        grid-template-columns: 1fr;
+    .checkout-grid,
+    .checkout-layout {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+.history-list {
+    display: grid;
+    gap: 14px;
+}
+
+.history-card {
+    background: #fff;
+    border: 1px solid #dbe6d7;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.history-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.history-code {
+    font-size: 1rem;
+    color: #1f4d28;
+}
+
+.history-store {
+    color: #64748b;
+    font-size: 0.92rem;
+    margin-top: 4px;
+}
+
+.history-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: #475569;
+    font-size: 0.92rem;
+    margin-bottom: 12px;
+}
+
+.history-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+
+@media (max-width: 600px) {
+    .history-card-top {
+        flex-direction: column;
     }
 }
 

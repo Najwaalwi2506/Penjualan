@@ -15,17 +15,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password_confirm = $_POST['password_confirm'];
     
     // Validasi
-    if (strlen($password) < 6) {
-        $error = 'Password minimal 6 karakter!';
+    if (empty($nama) || empty($angkatan) || empty($jenis) || empty($email) || empty($no_telp) || empty($password) || empty($password_confirm)) {
+        $error = 'Semua field wajib diisi dengan lengkap.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Format email tidak valid.';
+    } elseif (strlen($password) < 6) {
+        $error = 'Password minimal terdiri dari 6 karakter.';
     } elseif ($password !== $password_confirm) {
-        $error = 'Password tidak cocok!';
-    } elseif (empty($no_telp)) {
-        $error = 'No telepon wajib diisi!';
+        $error = 'Konfirmasi password tidak cocok.';
+    } elseif (strlen($no_telp) < 10) {
+        $error = 'Nomor telepon tidak valid.';
     } else {
         // Cek email
         $cek_email = mysqli_query($koneksi, "SELECT id FROM users WHERE email = '$email'");
         if (mysqli_num_rows($cek_email) > 0) {
-            $error = 'Email sudah terdaftar!';
+            $error = 'Email tersebut sudah digunakan. Silakan login atau gunakan email lain.';
         } else {
             // Insert user baru
             $password_hash = password_hash($password, PASSWORD_BCRYPT);
@@ -231,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="brand-icon">🌱</div>
             <div>
                 <h1>Daftar Akun Baru</h1>
-                <p class="subtitle">Bergabunglah untuk mulai berbelanja atau menjual produk organik.</p>
+                <p class="subtitle">Jika Anda ingin membeli produk, pilih akun Pembeli. Jika Anda ingin menjual produk, pilih akun Penjual.</p>
             </div>
         </div>
         
@@ -249,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="form-card">
             <div class="form-note">
                 <span class="form-note-icon">🌿</span>
-                <div>Isi data dengan lengkap agar akun Anda siap dipakai untuk belanja atau jualan produk organik dengan cepat.</div>
+                <div>Isi data dengan lengkap agar akun Anda siap dipakai untuk belanja atau menjual produk organik dengan cepat. Untuk akun Pembeli, pilih role Pembeli. Untuk akun Penjual, pilih role Penjual.</div>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -278,6 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label for="password">Password *</label>
                     <div class="password-wrapper">
                         <input type="password" id="password" name="password" required>
+                        <small style="color:#6b7b6b; display:block; margin-top:6px;">Password minimal terdiri dari 6 karakter.</small>
                         <span class="toggle-password" onclick="togglePassword('password', 'toggleIcon1')" id="toggleIcon1">
                             <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -319,8 +324,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             
             <div class="form-group">
-                <label for="alamat">Alamat Lengkap *</label>
-                <textarea id="alamat" name="alamat" required></textarea>
+                <label for="alamat">Alamat Umum (Kabupaten/Kota) *</label>
+                <input type="text" id="alamat" name="alamat" placeholder="Contoh: Kabupaten Karanganyar" required>
+                <small style="color:#6b7b6b; display:block; margin-top:6px;">Anda cukup mengisi kabupaten/kota saja, tidak perlu alamat lengkap.</small>
             </div>
             </div>
             

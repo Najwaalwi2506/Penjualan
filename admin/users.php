@@ -87,6 +87,9 @@ $produk_nav = mysqli_query($koneksi, "
         
      
 <p class="page-subtitle">Total: <?php echo $total; ?> user terdaftar</p>
+<div class="card" style="background:#fff7e6; border-left:4px solid #f59e0b; margin-bottom:16px; padding:16px; color:#7c4a00;">
+    <strong>Pengingat Admin:</strong> Selalu periksa data pengguna sebelum mengaktifkan, menonaktifkan, atau menghapus akun agar riwayat transaksi dan status toko tetap rapi dan sesuai prosedur.
+</div>
 
 <?php
         if (isset($_GET['status'])) {
