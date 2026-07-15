@@ -27,9 +27,9 @@ if ($pesanan['status'] !== 'dikirim') {
     exit;
 }
 
-mysqli_query($koneksi, "UPDATE pesanan SET status = 'selesai', updated_at = NOW() WHERE id = $pesanan_id");
-$subject = 'Pesanan Selesai';
-$message = '<p>Pesanan dengan ID ' . $pesanan_id . ' telah selesai dan dikonfirmasi oleh pembeli.</p>';
+mysqli_query($koneksi, "UPDATE pesanan SET status = 'diterima', updated_at = NOW() WHERE id = $pesanan_id");
+$subject = 'Pembeli Menyatakan Barang Diterima';
+$message = '<p>Pesanan dengan ID ' . $pesanan_id . ' telah dinyatakan diterima oleh pembeli.</p>';
 send_notification_email($koneksi, $subject, $message);
 header('Location: ../pesanan_detail.php?id=' . $pesanan_id . '&success=terima');
 exit;

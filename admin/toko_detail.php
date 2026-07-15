@@ -132,28 +132,29 @@ $pesanan = mysqli_query($koneksi, "
 
 
         <div class="card" style="margin-bottom: 16px;">
+            <div class="card-header">Informasi Toko</div>
             <div class="grid stats-grid-mobile" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
-                <div class="badge" style="background:#f5f7ff; color:#333; border:1px solid #ddd; padding:12px; border-radius:10px;">
-                    <div style="font-weight:800;">Statistik</div>
-                    <div style="font-size:12px; color:#666; margin-top:6px;">Total Pesanan: <?php echo (int)$stats['total_pesanan']; ?></div>
-                    <div style="font-size:12px; color:#666;">Dikonfirmasi Penjual: <?php echo (int)$stats['total_dikonfirmasi']; ?></div>
-                    <div style="font-size:12px; color:#666;">Selesai: <?php echo (int)$stats['total_selesai']; ?></div>
-                    <div style="font-size:12px; color:#666;">Omzet: <?php echo format_rupiah($stats['total_omzet'] ?? 0); ?></div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:14px; border-radius:14px;">
+                    <div style="font-weight:800; color:#0f172a; margin-bottom:8px;">Statistik</div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">Total Pesanan: <strong><?php echo (int)$stats['total_pesanan']; ?></strong></div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">Dikonfirmasi Penjual: <strong><?php echo (int)$stats['total_dikonfirmasi']; ?></strong></div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">Selesai: <strong><?php echo (int)$stats['total_selesai']; ?></strong></div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">Omzet: <strong><?php echo format_rupiah($stats['total_omzet'] ?? 0); ?></strong></div>
                 </div>
 
-                <div class="badge" style="background:#f5f7ff; color:#333; border:1px solid #ddd; padding:12px; border-radius:10px;">
-                    <div style="font-weight:800;">Info Toko</div>
-                    <div style="font-size:12px; color:#666; margin-top:6px;">Status: <?php echo !empty($toko['is_active']) ? '✓ Aktif' : '✗ Nonaktif'; ?></div>
-                    <div style="font-size:12px; color:#666;">Alamat: <?php echo htmlspecialchars($toko['alamat'] ?? '-'); ?></div>
-                    <div style="font-size:12px; color:#666;">No Telp: <?php echo htmlspecialchars($toko['no_telp'] ?? ($toko['telp'] ?? '-')); ?></div>
-                    <div style="font-size:12px; color:#666;">Dibuat: <?php echo !empty($toko['created_at']) ? date('d/m/Y', strtotime($toko['created_at'])) : '-'; ?></div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:14px; border-radius:14px;">
+                    <div style="font-weight:800; color:#0f172a; margin-bottom:8px;">Info Toko</div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">Status: <strong><?php echo !empty($toko['is_active']) ? '✓ Aktif' : '✗ Nonaktif'; ?></strong></div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">Alamat: <strong><?php echo htmlspecialchars($toko['alamat'] ?? '-'); ?></strong></div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">No Telp: <strong><?php echo htmlspecialchars($toko['no_telp'] ?? ($toko['telp'] ?? '-')); ?></strong></div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">Dibuat: <strong><?php echo !empty($toko['created_at']) ? date('d/m/Y', strtotime($toko['created_at'])) : '-'; ?></strong></div>
                 </div>
 
-                <div class="badge" style="background:#f5f7ff; color:#333; border:1px solid #ddd; padding:12px; border-radius:10px;">
-                    <div style="font-weight:800;">Rekening Toko</div>
-                    <div style="font-size:12px; color:#666; margin-top:6px;">Bank: <?php echo htmlspecialchars($toko['bank_nama'] ?? '-'); ?></div>
-                    <div style="font-size:12px; color:#666;">No Rekening: <?php echo htmlspecialchars($toko['no_rekening'] ?? '-'); ?></div>
-                    <div style="font-size:12px; color:#666;">Atas Nama: <?php echo htmlspecialchars($toko['nama_rekening'] ?? '-'); ?></div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:14px; border-radius:14px;">
+                    <div style="font-weight:800; color:#0f172a; margin-bottom:8px;">Rekening Toko</div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">Bank: <strong><?php echo htmlspecialchars($toko['bank_nama'] ?? '-'); ?></strong></div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">No Rekening: <strong><?php echo htmlspecialchars($toko['no_rekening'] ?? '-'); ?></strong></div>
+                    <div style="font-size:13px; color:#475569; line-height:1.6;">Atas Nama: <strong><?php echo htmlspecialchars($toko['nama_rekening'] ?? '-'); ?></strong></div>
                 </div>
             </div>
         </div>

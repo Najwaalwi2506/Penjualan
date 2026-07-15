@@ -44,7 +44,11 @@ function format_number_input($value) {
 }
 
 function format_stock($value) {
-    return format_number_input($value);
+    if ($value === null || $value === '') {
+        return '';
+    }
+
+    return number_format((float)round((float)$value), 0, ',', '.');
 }
 
 function get_general_location($address) {

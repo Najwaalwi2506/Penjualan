@@ -3,6 +3,11 @@ include '../Koneksi.php';
 check_login();
 check_role(['pembeli']);
 
+$message = '';
+if (isset($_GET['success']) && $_GET['success'] === 'terima') {
+    $message = 'Terima kasih! Status pesanan Anda telah diperbarui menjadi Diterima.';
+}
+
 $user_id = $_SESSION['user_id'];
 $pesanan_id = sanitize($koneksi, $_GET['id']);
 
@@ -60,6 +65,7 @@ $penjual_contact_url = $penjual_phone !== '' ? 'https://wa.me/' . $penjual_phone
     </div>
     <details class="navbar-mobile">
         <summary><span>Menu</span><span class="material-symbols-outlined">menu</span></summary>
+        <div class="navbar-mobile-help">Klik di sini untuk membuka menu dan berpindah ke halaman lain.</div>
         <div class="mobile-actions">
             <a href="dashboard.php"><span class="material-symbols-outlined">home</span> Beranda</a>
             <a href="keranjang.php"><span class="material-symbols-outlined">shopping_cart</span> Keranjang</a>
@@ -173,6 +179,9 @@ $penjual_contact_url = $penjual_phone !== '' ? 'https://wa.me/' . $penjual_phone
 
     <div class="card order-status-card" style="margin-top: 20px;">
         <div class="card-header">⏱️ Status Pesanan</div>
+        <?php if ($message !== ''): ?>
+            <div class="alert alert-success" style="margin: 0 0 16px 0;"><?php echo htmlspecialchars($message); ?></div>
+        <?php endif; ?>
         <?php 
         $status = $pesanan['status'];
         if ($status == 'menunggu_konfirmasi') {
@@ -187,6 +196,9 @@ $penjual_contact_url = $penjual_phone !== '' ? 'https://wa.me/' . $penjual_phone
         } elseif ($status == 'selesai') {
             $statusTitle = 'Pesanan Selesai';
             $statusDesc = 'Terima kasih telah berbelanja.';
+        } elseif ($status == 'diterima') {
+            $statusTitle = 'Pesanan Diterima';
+            $statusDesc = 'Barang Anda telah diterima dan transaksi dinyatakan selesai.';
         } elseif ($status == 'dibatalkan') {
             $statusTitle = 'Pesanan Dibatalkan';
             $statusDesc = 'Pesanan tidak dapat diproses lebih lanjut.';
@@ -207,7 +219,19 @@ $penjual_contact_url = $penjual_phone !== '' ? 'https://wa.me/' . $penjual_phone
     <div class="order-actions">
         <a href="pesanan.php" class="btn btn-secondary">← Kembali</a>
         <a href="javascript:void(0)" onclick="window.print()" class="btn btn-outline">Cetak Invoice</a>
-        <a href="<?php echo htmlspecialchars($penjual_contact_url); ?>" class="btn btn-primary" <?php echo $penjual_contact_url === '#' ? '' : 'target="_blank" rel="noopener"'; ?>>Hubungi Penjual</a>
+        <?php if ($pesanan['status'] === 'dikirim'): ?>
+            <form method="POST" action="proses/konfirmasi_terima.php" style="display:contents;">
+                <input type="hidden" name="pesanan_id" value="<?php echo (int)$pesanan['id']; ?>">
+                <button type="submit" class="btn btn-primary">Barang Sudah Diterima</button>
+            </form>
+        <?php else: ?>
+            <a href="<?php echo htmlspecialchars($penjual_contact_url); ?>" class="btn btn-primary" <?php echo $penjual_contact_url === '#' ? '' : 'target="_blank" rel="noopener"'; ?>>Hubungi Penjual</a>
+        <?php endif; ?>
     </div>
+    <?php if ($pesanan['status'] === 'dikirim'): ?>
+        <div class="alert alert-info" style="margin-top: 14px;">
+            Apabila barang sudah Anda terima, silakan klik tombol <strong>Barang Sudah Diterima</strong> agar penjual mengetahui bahwa pesanan telah sampai dengan baik.
+        </div>
+    <?php endif; ?>
 </body>
 </html>

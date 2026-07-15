@@ -3,7 +3,13 @@ include '../Koneksi.php';
 check_login();
 check_role(['admin']);
 
-$kategori = mysqli_query($koneksi, "SELECT * FROM kategori_produk");
+$selected_month = isset($_GET['bulan']) ? trim($_GET['bulan']) : '';
+$month_filter = '';
+if ($selected_month !== '') {
+    $month_filter = " AND DATE_FORMAT(pe.created_at, '%Y-%m') = '$selected_month'";
+}
+
+$kategori = mysqli_query($koneksi, "SELECT * FROM kategori_produk ORDER BY nama");
 $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as kategori,
                                  COALESCE(SUM(dp.jumlah),0) AS jumlah_barang_terjual,
                                  COALESCE(SUM(dp.subtotal),0) AS total_nilai_penjualan,
@@ -12,9 +18,15 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as kategori,
                                  JOIN kategori_produk k ON j.kategori_id = k.id 
                                  LEFT JOIN produk p ON p.jenis_produk_id = j.id
                                  LEFT JOIN detail_pesanan dp ON dp.produk_id = p.id
-                                 LEFT JOIN pesanan pe ON pe.id = dp.pesanan_id
+                                 LEFT JOIN pesanan pe ON pe.id = dp.pesanan_id $month_filter
                                  GROUP BY j.id, k.nama
                                  ORDER BY k.nama, j.nama_jenis");
+
+$available_months = [];
+$months_result = mysqli_query($koneksi, "SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') AS bulan FROM pesanan WHERE created_at IS NOT NULL ORDER BY bulan DESC");
+while ($month_row = mysqli_fetch_assoc($months_result)) {
+    $available_months[] = $month_row['bulan'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -78,10 +90,20 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as kategori,
         <div class="card" style="margin: 20px 0; padding:16px;">
             <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
                 <div><strong>Unduh Data Produk</strong><br><small style="color:#666;">Ekspor data produk dan kategori untuk laporan administrasi.</small></div>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <a href="export.php?module=produk&format=pdf" class="btn btn-secondary btn-sm">PDF</a>
-                    <a href="export.php?module=produk&format=docx" class="btn btn-secondary btn-sm">Word</a>
-                    <a href="export.php?module=produk&format=xlsx" class="btn btn-secondary btn-sm">Excel</a>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <form method="GET" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                        <select name="bulan">
+                            <option value="">Semua Bulan</option>
+                            <?php foreach ($available_months as $month): ?>
+                                <option value="<?php echo htmlspecialchars($month); ?>" <?php echo $selected_month === $month ? 'selected' : ''; ?>><?php echo htmlspecialchars(date('F Y', strtotime($month . '-01'))); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm">Terapkan</button>
+                        <a href="kelola_kategori.php" class="btn btn-secondary btn-sm">Reset</a>
+                    </form>
+                    <a href="export.php?module=produk&format=pdf&bulan=<?php echo urlencode($selected_month); ?>" class="btn btn-secondary btn-sm">PDF</a>
+                    <a href="export.php?module=produk&format=docx&bulan=<?php echo urlencode($selected_month); ?>" class="btn btn-secondary btn-sm">Word</a>
+                    <a href="export.php?module=produk&format=xlsx&bulan=<?php echo urlencode($selected_month); ?>" class="btn btn-secondary btn-sm">Excel</a>
                 </div>
             </div>
         </div>

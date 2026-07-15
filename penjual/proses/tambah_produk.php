@@ -18,6 +18,12 @@ if (!$jenis_produk_id || $harga_jual < 0 || $jumlah_stok < 0) {
     die('Data tidak valid');
 }
 
+$duplicate_check = mysqli_query($koneksi, "SELECT id FROM produk WHERE toko_id = $toko_id AND jenis_produk_id = $jenis_produk_id LIMIT 1");
+if (mysqli_num_rows($duplicate_check) > 0) {
+    header('Location: ../produk_tambah.php?error=duplicate');
+    exit;
+}
+
 // Insert produk
 $query = "INSERT INTO produk (toko_id, jenis_produk_id, harga_jual, jumlah_stok, deskripsi, is_tersedia, created_at) 
           VALUES ($toko_id, $jenis_produk_id, $harga_jual, $jumlah_stok, '$deskripsi', $is_tersedia, NOW())";

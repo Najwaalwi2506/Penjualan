@@ -6,6 +6,12 @@ check_role(['penjual']);
 $user_id = $_SESSION['user_id'];
 $toko = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM toko WHERE user_id = $user_id"));
 $toko_id = $toko['id'];
+$selected_month = isset($_GET['bulan']) ? trim($_GET['bulan']) : '';
+
+$where_clause = "WHERE p.toko_id = $toko_id AND p.status IN ('dikirim', 'selesai')";
+if ($selected_month !== '') {
+    $where_clause .= " AND DATE_FORMAT(p.created_at, '%Y-%m') = '$selected_month'";
+}
 
 // Ambil riwayat penjualan (Pesanan selesai)
 $riwayat = mysqli_query($koneksi, "
@@ -15,7 +21,7 @@ $riwayat = mysqli_query($koneksi, "
     FROM pesanan p
     JOIN users u ON p.pembeli_id = u.id
     LEFT JOIN detail_pesanan dp ON p.id = dp.pesanan_id
-    WHERE p.toko_id = $toko_id AND p.status IN ('dikirim', 'selesai')
+    $where_clause
     GROUP BY p.id
     ORDER BY p.created_at DESC
 ");
@@ -24,7 +30,13 @@ $total_pesanan = mysqli_num_rows($riwayat);
 
 // Hitung total penjualan
 $total_penjualan = mysqli_fetch_assoc(mysqli_query($koneksi, 
-    "SELECT SUM(grand_total) as total FROM pesanan WHERE toko_id = $toko_id AND status IN ('dikirim', 'selesai')"));
+    "SELECT SUM(grand_total) as total FROM pesanan p $where_clause"));
+
+$available_months = [];
+$months_result = mysqli_query($koneksi, "SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') AS bulan FROM pesanan WHERE toko_id = $toko_id AND created_at IS NOT NULL ORDER BY bulan DESC");
+while ($month_row = mysqli_fetch_assoc($months_result)) {
+    $available_months[] = $month_row['bulan'];
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -81,6 +93,30 @@ $total_penjualan = mysqli_fetch_assoc(mysqli_query($koneksi,
         
         <h1 class="page-title">Riwayat Penjualan</h1>
         <p class="page-subtitle">Pesanan yang sudah selesai</p>
+
+        <div class="card" style="margin-bottom: 20px;">
+            <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;">
+                <div>
+                    <strong>Filter Bulan</strong><br>
+                    <small style="color:#666;">Pilih periode laporan penjualan Anda.</small>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                    <form method="GET" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                        <select name="bulan">
+                            <option value="">Semua Bulan</option>
+                            <?php foreach ($available_months as $month): ?>
+                                <option value="<?php echo htmlspecialchars($month); ?>" <?php echo $selected_month === $month ? 'selected' : ''; ?>><?php echo htmlspecialchars(date('F Y', strtotime($month . '-01'))); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm">Terapkan</button>
+                        <a href="riwayat.php" class="btn btn-secondary btn-sm">Reset</a>
+                    </form>
+                    <a href="export.php?module=penjualan&format=xlsx&bulan=<?php echo urlencode($selected_month); ?>" class="btn btn-secondary btn-sm">Excel</a>
+                    <a href="export.php?module=penjualan&format=docx&bulan=<?php echo urlencode($selected_month); ?>" class="btn btn-secondary btn-sm">Word</a>
+                    <a href="export.php?module=penjualan&format=pdf&bulan=<?php echo urlencode($selected_month); ?>" class="btn btn-secondary btn-sm">PDF</a>
+                </div>
+            </div>
+        </div>
         
         <!-- STATISTIK -->
         <div style="display: flex; justify-content: center; margin-bottom: 2rem;">

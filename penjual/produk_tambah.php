@@ -65,6 +65,10 @@ $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as nama_kategori FROM jenis_
         </div>
         
         <h1 class="page-title">Tambah Produk Baru</h1>
+
+        <?php if (isset($_GET['error']) && $_GET['error'] === 'duplicate'): ?>
+            <div class="alert alert-warning" style="max-width: 600px; margin: 0 auto 20px auto;">Produk ini sudah terdaftar. Silakan edit produk yang sudah ada atau tambahkan produk yang berbeda.</div>
+        <?php endif; ?>
         
         <div class="card" style="max-width: 600px; margin: 0 auto;">
             <form method="POST" action="proses/tambah_produk.php" enctype="multipart/form-data" novalidate>

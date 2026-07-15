@@ -167,6 +167,7 @@ $cart_count = !empty($_SESSION['cart']) && is_array($_SESSION['cart']) ? count($
     </div>
     <details class="navbar-mobile">
         <summary><span>Menu</span><span class="material-symbols-outlined">menu</span></summary>
+        <div class="navbar-mobile-help">Klik di sini untuk membuka menu dan berpindah ke halaman lain.</div>
         <div class="mobile-actions">
             <a href="dashboard.php"><span class="material-symbols-outlined">home</span> Beranda</a>
             <a href="keranjang.php"><span class="material-symbols-outlined">shopping_cart</span> Keranjang</a>
