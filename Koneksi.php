@@ -11,7 +11,7 @@ $koneksi = mysqli_connect($host, $user, $password, $database);
 mysqli_set_charset($koneksi, "utf8mb4");
 
 // Cek koneksi
-if (!$koneksi){
+if (!$koneksi){X
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 

@@ -185,6 +185,7 @@ if (!empty($selected_month)) {
         </div>
     </div>
 </div>
+<footer class="app-footer">© Petani Sejati (PTS_Jatim)</footer>
 <script src="../js/admin-responsive.js"></script>
 </body>
 </html>

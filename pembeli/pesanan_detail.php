@@ -184,28 +184,17 @@ $penjual_contact_url = $penjual_phone !== '' ? 'https://wa.me/' . $penjual_phone
         <?php endif; ?>
         <?php 
         $status = $pesanan['status'];
-        if ($status == 'menunggu_konfirmasi') {
-            $statusTitle = 'Menunggu Konfirmasi';
-            $statusDesc = 'Penjual akan mengkonfirmasi pesanan Anda.';
-        } elseif ($status == 'dikonfirmasi') {
-            $statusTitle = 'Pesanan Dikonfirmasi';
-            $statusDesc = 'Penjual sedang menyiapkan barang.';
-        } elseif ($status == 'dikirim') {
-            $statusTitle = 'Pesanan Dikirim';
-            $statusDesc = 'Barang dalam perjalanan ke Anda.';
-        } elseif ($status == 'selesai') {
-            $statusTitle = 'Pesanan Selesai';
-            $statusDesc = 'Terima kasih telah berbelanja.';
-        } elseif ($status == 'diterima') {
-            $statusTitle = 'Pesanan Diterima';
-            $statusDesc = 'Barang Anda telah diterima dan transaksi dinyatakan selesai.';
-        } elseif ($status == 'dibatalkan') {
-            $statusTitle = 'Pesanan Dibatalkan';
-            $statusDesc = 'Pesanan tidak dapat diproses lebih lanjut.';
-        } else {
-            $statusTitle = ucfirst(str_replace('_', ' ', $status));
-            $statusDesc = '';
-        }
+        $status_map = [
+            'menunggu_konfirmasi' => ['Belum Dikonfirmasi', 'Pesanan Anda telah masuk dan menunggu konfirmasi dari penjual.'],
+            'dikonfirmasi' => ['Sedang Dikemas', 'Pesanan Anda telah dikonfirmasi dan sedang disiapkan oleh penjual.'],
+            'dikirim' => ['Dalam Perjalanan', 'Barang sedang dikirim dan sedang menuju alamat Anda.'],
+            'siap_diterima' => ['Siap Diterima', 'Barang sudah sampai di wilayah pengiriman dan siap untuk Anda terima.'],
+            'diterima' => ['Barang Sudah Diterima', 'Barang Anda telah diterima dan pesanan masuk tahap selesai.'],
+            'selesai' => ['Pesanan Selesai', 'Transaksi telah selesai dan terima kasih telah berbelanja.'],
+            'dibatalkan' => ['Pesanan Dibatalkan', 'Pesanan tidak dapat diproses lebih lanjut.'],
+        ];
+        $statusTitle = $status_map[$status][0] ?? ucfirst(str_replace('_', ' ', $status));
+        $statusDesc = $status_map[$status][1] ?? '';
         ?>
         <div class="status-item">
             <div class="status-icon"><span class="material-symbols-outlined">check_circle</span></div>
@@ -216,22 +205,37 @@ $penjual_contact_url = $penjual_phone !== '' ? 'https://wa.me/' . $penjual_phone
         </div>
     </div>
 
+    <div class="card" style="margin-top: 20px;">
+        <div class="card-header">📝 Catatan Pembeli</div>
+        <div style="padding: 20px;">
+            <div class="order-detail-meta">
+                <div class="meta-item" style="grid-column: 1 / -1;">
+                    <span>Catatan</span>
+                    <strong><?php echo !empty($pesanan['catatan']) ? nl2br(htmlspecialchars($pesanan['catatan'])) : '-'; ?></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="order-actions">
         <a href="pesanan.php" class="btn btn-secondary">← Kembali</a>
         <a href="javascript:void(0)" onclick="window.print()" class="btn btn-outline">Cetak Invoice</a>
-        <?php if ($pesanan['status'] === 'dikirim'): ?>
+        <?php if (in_array($pesanan['status'], ['dikirim', 'siap_diterima'], true)): ?>
             <form method="POST" action="proses/konfirmasi_terima.php" style="display:contents;">
                 <input type="hidden" name="pesanan_id" value="<?php echo (int)$pesanan['id']; ?>">
+                <textarea name="catatan" rows="3" placeholder="Tulis catatan tambahan untuk penjual (opsional)" style="display:none;"></textarea>
                 <button type="submit" class="btn btn-primary">Barang Sudah Diterima</button>
             </form>
         <?php else: ?>
             <a href="<?php echo htmlspecialchars($penjual_contact_url); ?>" class="btn btn-primary" <?php echo $penjual_contact_url === '#' ? '' : 'target="_blank" rel="noopener"'; ?>>Hubungi Penjual</a>
         <?php endif; ?>
     </div>
-    <?php if ($pesanan['status'] === 'dikirim'): ?>
+    <?php if (in_array($pesanan['status'], ['dikirim', 'siap_diterima'], true)): ?>
         <div class="alert alert-info" style="margin-top: 14px;">
-            Apabila barang sudah Anda terima, silakan klik tombol <strong>Barang Sudah Diterima</strong> agar penjual mengetahui bahwa pesanan telah sampai dengan baik.
+            Jika barang sudah Anda terima, silakan klik tombol <strong>Barang Sudah Diterima</strong>. Setelah itu, status pesanan akan berubah menjadi <strong>Diterima</strong> dan penjual dapat melihat bahwa transaksi telah selesai.
         </div>
     <?php endif; ?>
+</div>
+<footer class="app-footer">© Petani Sejati (PTS_Jatim)</footer>
 </body>
 </html>

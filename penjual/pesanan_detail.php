@@ -204,5 +204,6 @@ $detail = mysqli_query($koneksi, "
         </div>
     </div>
 </div>
+<footer class="app-footer">© Petani Sejati (PTS_Jatim)</footer>
 </body>
 </html>

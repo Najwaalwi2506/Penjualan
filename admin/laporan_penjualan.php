@@ -3,18 +3,30 @@ include '../Koneksi.php';
 check_login();
 check_role(['admin']);
 
+$selected_month = isset($_GET['bulan']) ? trim($_GET['bulan']) : '';
+$month_condition = '';
+if ($selected_month !== '') {
+    $month_condition = " AND DATE_FORMAT(p.created_at, '%Y-%m') = '" . mysqli_real_escape_string($koneksi, $selected_month) . "'";
+}
+
+$available_months = [];
+$month_result = mysqli_query($koneksi, "SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') AS bulan FROM pesanan WHERE created_at IS NOT NULL ORDER BY bulan DESC");
+while ($month_row = mysqli_fetch_assoc($month_result)) {
+    $available_months[] = $month_row['bulan'];
+}
+
 // Statistik
-$total_penjualan = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT SUM(grand_total) as total FROM pesanan WHERE status != 'dibatalkan'"))['total'];
-$total_pesanan = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as count FROM pesanan WHERE status != 'dibatalkan'"))['count'];
+$total_penjualan = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COALESCE(SUM(grand_total),0) as total FROM pesanan WHERE status != 'dibatalkan'" . $month_condition))['total'];
+$total_pesanan = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as count FROM pesanan WHERE status != 'dibatalkan'" . $month_condition))['count'];
 $rata_pesanan = $total_pesanan > 0 ? $total_penjualan / $total_pesanan : 0;
 
 // Per toko
 $penjualan_toko = mysqli_query($koneksi, "
-    SELECT t.nama_toko, u.nama as penjual, COUNT(p.id) as jumlah_pesanan, SUM(p.grand_total) as total
+    SELECT t.nama_toko, u.nama as penjual, COUNT(p.id) as jumlah_pesanan, COALESCE(SUM(p.grand_total),0) as total
     FROM pesanan p
     JOIN toko t ON p.toko_id = t.id
     JOIN users u ON t.user_id = u.id
-    WHERE p.status != 'dibatalkan'
+    WHERE p.status != 'dibatalkan'" . $month_condition . "
     GROUP BY t.id
     ORDER BY total DESC
 ");
@@ -93,10 +105,19 @@ $penjualan_toko = mysqli_query($koneksi, "
         <div class="card" style="margin-bottom:20px; padding:16px;">
             <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
                 <div><strong>Unduh Laporan</strong><br><small style="color:#666;">Ekspor data penjualan, toko, produk, dan pengguna dalam format yang diinginkan.</small></div>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <a href="export.php?module=penjualan&format=pdf" class="btn btn-secondary btn-sm">PDF</a>
-                    <a href="export.php?module=penjualan&format=docx" class="btn btn-secondary btn-sm">Word</a>
-                    <a href="export.php?module=penjualan&format=xlsx" class="btn btn-secondary btn-sm">Excel</a>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <form method="GET" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                        <select name="bulan" class="form-control" style="min-width:220px;">
+                            <option value="">Semua Bulan</option>
+                            <?php foreach ($available_months as $month): ?>
+                                <option value="<?php echo htmlspecialchars($month); ?>" <?php echo $selected_month === $month ? 'selected' : ''; ?>><?php echo htmlspecialchars(date('F Y', strtotime($month . '-01'))); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm">Terapkan</button>
+                    </form>
+                    <a href="export.php?module=penjualan&format=pdf&bulan=<?php echo urlencode($selected_month); ?>" class="btn btn-secondary btn-sm">PDF</a>
+                    <a href="export.php?module=penjualan&format=docx&bulan=<?php echo urlencode($selected_month); ?>" class="btn btn-secondary btn-sm">Word</a>
+                    <a href="export.php?module=penjualan&format=xlsx&bulan=<?php echo urlencode($selected_month); ?>" class="btn btn-secondary btn-sm">Excel</a>
                 </div>
             </div>
         </div>
@@ -131,6 +152,7 @@ $penjualan_toko = mysqli_query($koneksi, "
         </div>
     </div>
 </div>
+<footer class="app-footer">© Petani Sejati (PTS_Jatim)</footer>
 <script src="../js/admin-responsive.js"></script>
 </body>
 </html>

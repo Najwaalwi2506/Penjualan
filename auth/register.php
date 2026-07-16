@@ -26,14 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (strlen($no_telp) < 10) {
         $error = 'Nomor telepon tidak valid.';
     } else {
-        // Cek email
-        $cek_email = mysqli_query($koneksi, "SELECT id FROM users WHERE email = '$email'");
-        if (mysqli_num_rows($cek_email) > 0) {
-            $error = 'Email tersebut sudah digunakan. Silakan login atau gunakan email lain.';
-        } else {
-            // Insert user baru
-            $password_hash = password_hash($password, PASSWORD_BCRYPT);
-            $role = ($jenis == 'penjual') ? 'penjual' : 'pembeli';
+        // Insert user baru tanpa membatasi penggunaan email agar satu alamat email dapat dipakai untuk beberapa akun
+        $password_hash = password_hash($password, PASSWORD_BCRYPT);
+        $role = ($jenis == 'penjual') ? 'penjual' : 'pembeli';
             
             $query = "INSERT INTO users (nama, angkatan, jenis_keanggotaan, alamat, no_telp, email, password, role, is_active) 
                       VALUES ('$nama', '$angkatan', '$jenis', '$alamat', '$no_telp', '$email', '$password_hash', '$role', 1)";
@@ -339,6 +334,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <p>Sudah punya akun? <a href="../index.php">Login di sini</a></p>
         </div>
     </div>
+    <footer class="app-footer" style="margin-top: 18px;">© Petani Sejati (PTS_Jatim)</footer>
 
     <script>
         function togglePassword(inputId, iconId) {

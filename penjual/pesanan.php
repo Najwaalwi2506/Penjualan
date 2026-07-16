@@ -100,6 +100,7 @@ $total_pesanan = mysqli_num_rows($pesanan);
                             <th>Pembeli</th>
                             <th>Total</th>
                             <th>Status</th>
+                            <th>Catatan Pembeli</th>
                             <th>Tanggal</th>
                             <th>Aksi</th>
                         </tr>
@@ -111,6 +112,7 @@ $total_pesanan = mysqli_num_rows($pesanan);
                             <td><?php echo $row['pembeli']; ?></td>
                             <td><?php echo format_rupiah($row['grand_total']); ?></td>
                             <td><span class="badge badge-<?php echo $row['status']; ?>"><?php echo ucfirst(str_replace('_', ' ', $row['status'])); ?></span></td>
+                            <td><?php echo !empty($row['catatan']) ? htmlspecialchars($row['catatan']) : '-'; ?></td>
                             <td><?php echo date('d/m/Y H:i', strtotime($row['created_at'])); ?></td>
                             <td><a href="pesanan_detail.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm">Lihat</a></td>
                         </tr>

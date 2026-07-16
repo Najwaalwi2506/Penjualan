@@ -11,12 +11,15 @@ if ($selected_month !== '') {
 
 $kategori = mysqli_query($koneksi, "SELECT * FROM kategori_produk ORDER BY nama");
 $jenis = mysqli_query($koneksi, "SELECT j.*, k.nama as kategori,
+                                 COALESCE(COUNT(DISTINCT p.id),0) AS total_produk,
+                                 COALESCE(COUNT(DISTINCT t.user_id),0) AS total_penjual,
                                  COALESCE(SUM(dp.jumlah),0) AS jumlah_barang_terjual,
                                  COALESCE(SUM(dp.subtotal),0) AS total_nilai_penjualan,
                                  COUNT(DISTINCT pe.pembeli_id) AS terjual_orang
                                  FROM jenis_produk j 
                                  JOIN kategori_produk k ON j.kategori_id = k.id 
                                  LEFT JOIN produk p ON p.jenis_produk_id = j.id
+                                 LEFT JOIN toko t ON t.id = p.toko_id
                                  LEFT JOIN detail_pesanan dp ON dp.produk_id = p.id
                                  LEFT JOIN pesanan pe ON pe.id = dp.pesanan_id $month_filter
                                  GROUP BY j.id, k.nama
@@ -163,6 +166,8 @@ while ($month_row = mysqli_fetch_assoc($months_result)) {
                             <th>Nama Jenis</th>
                             <th>Kategori</th>
                             <th>Satuan</th>
+                            <th>Total Produk</th>
+                            <th>Total Penjual</th>
                             <th>Jumlah Barang Terjual</th>
                             <th>Total Nilai Penjualan</th>
                         </tr>
@@ -185,6 +190,8 @@ while ($month_row = mysqli_fetch_assoc($months_result)) {
                                 <td><?php echo htmlspecialchars($row['nama_jenis']); ?></td>
                                 <td><?php echo htmlspecialchars($row['kategori']); ?></td>
                                 <td><?php echo htmlspecialchars(ucfirst($row['satuan'] ?? '')); ?></td>
+                                <td><?php echo htmlspecialchars((int)($row['total_produk'] ?? 0)); ?></td>
+                                <td><?php echo htmlspecialchars((int)($row['total_penjual'] ?? 0)); ?></td>
                                 <td><?php echo htmlspecialchars((int)($row['jumlah_barang_terjual'] ?? 0)); ?></td>
                                 <td><?php echo htmlspecialchars(format_rupiah((float)($row['total_nilai_penjualan'] ?? 0))); ?></td>
                             </tr>
@@ -202,6 +209,7 @@ while ($month_row = mysqli_fetch_assoc($months_result)) {
 
 </div>
 
+<footer class="app-footer">© Petani Sejati (PTS_Jatim)</footer>
 <script src="../js/admin-responsive.js"></script>
 </body>
 </html>
